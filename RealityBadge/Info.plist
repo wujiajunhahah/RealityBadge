@@ -31,5 +31,7 @@
   <array>
     <string>UIInterfaceOrientationPortrait</string>
   </array>
+  <key>NSCameraUsageDescription</key>
+  <string>需要相机权限以进行实时取景与生成徽章。</string>
 </dict>
 </plist>
