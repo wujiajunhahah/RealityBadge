@@ -104,7 +104,7 @@ struct HomeView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 180)
-            .onChange(of: state.mode) { _ in RBHaptics.light() }
+            .onChange(of: state.mode) { _, _ in RBHaptics.light() }
             
             HStack(spacing: 6) {
                 ForEach(RBMode.allCases) { m in
