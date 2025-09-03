@@ -1,5 +1,51 @@
 import SwiftUI
 import AVFoundation
+import CoreVideo
+
+// 内联占位：语义分数与引擎，避免目标未包含独立文件时报错
+struct SemanticScores {
+    var objectConfidence: CGFloat
+    var handObjectIoU: CGFloat
+    var textImageSimilarity: CGFloat
+}
+
+final class SemanticEngine {
+    private var ema: Double = 0
+    private let keywords: [String]
+    init(targetKeywords: [String]) { self.keywords = targetKeywords }
+    func process(sampleBuffer: CMSampleBuffer) -> SemanticScores {
+        guard let pixel = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            return .init(objectConfidence: 0, handObjectIoU: 0, textImageSimilarity: 0)
+        }
+        CVPixelBufferLockBaseAddress(pixel, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(pixel, .readOnly) }
+        let w = CVPixelBufferGetWidthOfPlane(pixel, 0)
+        let h = CVPixelBufferGetHeightOfPlane(pixel, 0)
+        let bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(pixel, 0)
+        guard let baseAddr = CVPixelBufferGetBaseAddressOfPlane(pixel, 0) else {
+            return .init(objectConfidence: 0, handObjectIoU: 0, textImageSimilarity: 0)
+        }
+        let ptr = baseAddr.assumingMemoryBound(to: UInt8.self)
+        var sum: Double = 0
+        var count = 0
+        let strideY = max(1, h / 120)
+        let strideX = max(1, w * h / 8000)
+        for y in stride(from: 0, to: h, by: strideY) {
+            let row = ptr + y * bytesPerRow
+            for x in stride(from: 0, to: w, by: strideX) {
+                sum += Double(row[x])
+                count += 1
+            }
+        }
+        let mean = (count > 0) ? sum / Double(count) : 0
+        let alpha = 0.06
+        ema = alpha * mean + (1 - alpha) * ema
+        let norm = CGFloat(min(1.0, max(0.0, ema / 255.0)))
+        return .init(objectConfidence: norm,
+                     handObjectIoU: pow(norm, 0.8),
+                     textImageSimilarity: sqrt(norm))
+    }
+}
 
 // 用专用 UIView 承载 AVPreviewLayer，更稳
 final class PreviewView: UIView {
