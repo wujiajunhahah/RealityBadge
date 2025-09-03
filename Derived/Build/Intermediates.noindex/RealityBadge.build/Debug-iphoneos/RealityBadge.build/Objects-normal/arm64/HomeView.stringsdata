@@ -1,0 +1,40 @@
+{
+  "source": "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/HomeView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "现实勋章",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 45
+        }
+      },
+      {
+        "comment": "",
+        "key": "徽章库",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "查看全部徽章",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "开始",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 134
+        }
+      }
+    ]
+  },
+  "version": 1
+}

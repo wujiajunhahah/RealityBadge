@@ -1,0 +1,88 @@
+{
+  "" : {
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadge-master.dia",
+    "emit-module-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadge-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadge-master-emit-module.dia",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadge-master.swiftdeps"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/BadgeWallView.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/BadgeWallView~partial.swiftmodule"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/CaptureView.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/CaptureView~partial.swiftmodule"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/HomeView.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/HomeView~partial.swiftmodule"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/Models.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Models~partial.swiftmodule"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/RealityBadgeApp.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/RealityBadgeApp~partial.swiftmodule"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/SettingsView.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/Sheets.swift" : {
+    "const-values" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets.swiftconstvalues",
+    "dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets.d",
+    "diagnostics" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets.dia",
+    "index-unit-output-path" : "/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets.o",
+    "llvm-bc" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets.bc",
+    "object" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets.o",
+    "swift-dependencies" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets.swiftdeps",
+    "swiftmodule" : "/Users/wujiajun/Downloads/RealityBadge/Derived/Build/Intermediates.noindex/RealityBadge.build/Debug-iphoneos/RealityBadge.build/Objects-normal/arm64/Sheets~partial.swiftmodule"
+  }
+}

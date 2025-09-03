@@ -1,0 +1,24 @@
+{
+  "source": "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/CaptureView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "捕捉中…",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "语义快门已就绪",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 31
+        }
+      }
+    ]
+  },
+  "version": 1
+}

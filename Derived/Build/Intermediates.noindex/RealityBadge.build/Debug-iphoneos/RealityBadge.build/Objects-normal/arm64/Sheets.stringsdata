@@ -1,0 +1,40 @@
+{
+  "source": "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/Sheets.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "立即创作",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "保存预览",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "分享",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 70
+        }
+      },
+      {
+        "comment": "",
+        "key": "分享",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 79
+        }
+      }
+    ]
+  },
+  "version": 1
+}

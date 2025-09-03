@@ -1,0 +1,40 @@
+{
+  "source": "/Users/wujiajun/Downloads/RealityBadge/RealityBadge/BadgeWallView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "徽章库",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "本周进度 3/7",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "待收集",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "--",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 30
+        }
+      }
+    ]
+  },
+  "version": 1
+}
