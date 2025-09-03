@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("rb.style") private var style: String = "embossed"
     @AppStorage("rb.enableParallax") private var enableParallax: Bool = true
     @AppStorage("rb.icloud") private var iCloudSync: Bool = true
+    @AppStorage("rb.validation.mode") private var validationModeRaw: String = RBValidationMode.standard.rawValue
     private var pushDate: Binding<Date> {
         .init(get: { Date(timeIntervalSince1970: pushTime) },
               set: { pushTime = $0.timeIntervalSince1970 })
@@ -31,6 +32,13 @@ struct SettingsView: View {
                         Text("像素章").tag("pixel")
                     }
                     Toggle("动态预览（3D-lite）", isOn: $enableParallax)
+                }
+                Section("验证模式") {
+                    Picker("模式", selection: $validationModeRaw) {
+                        ForEach(RBValidationMode.allCases) { m in
+                            Text(m.rawValue).tag(m.rawValue)
+                        }
+                    }
                 }
                 Section("账号与数据") {
                     Toggle("iCloud 同步", isOn: $iCloudSync)

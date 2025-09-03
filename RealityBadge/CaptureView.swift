@@ -29,9 +29,14 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
 
     let session = AVCaptureSession()
     private let queue = DispatchQueue(label: "rb.camera.queue")
-    private var brightnessEMA: Double = 0.0
 
-    override init() {
+    // 新增：语义引擎与设置
+    private let engine: SemanticEngine
+    private let settings: RBSettings
+
+    init(engine: SemanticEngine, settings: RBSettings) {
+        self.engine = engine
+        self.settings = settings
         super.init()
         requestPermission()
     }
@@ -97,35 +102,27 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         }
     }
 
-    // 用平均亮度做演示进度（占位：后续换 VLM/分割信号）
+    // 将帧送入语义引擎，根据验证模式融合进度
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let pixel = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        CVPixelBufferLockBaseAddress(pixel, .readOnly)
-        defer { CVPixelBufferUnlockBaseAddress(pixel, .readOnly) }
-        let w = CVPixelBufferGetWidthOfPlane(pixel, 0)
-        let h = CVPixelBufferGetHeightOfPlane(pixel, 0)
-        let bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(pixel, 0)
-        guard let baseAddr = CVPixelBufferGetBaseAddressOfPlane(pixel, 0) else { return }
-        let ptr = baseAddr.assumingMemoryBound(to: UInt8.self)
+        let scores = engine.process(sampleBuffer: sampleBuffer)
 
-        var sum: Double = 0
-        var count = 0
-        let strideY = max(1, h / 120)
-        let strideX = max(1, w * h / 8000)
-        for y in stride(from: 0, to: h, by: strideY) {
-            let row = ptr + y * bytesPerRow
-            for x in stride(from: 0, to: w, by: strideX) {
-                sum += Double(row[x])
-                count += 1
-            }
+        let fused: CGFloat
+        switch settings.validationMode {
+        case .strict:
+            // 必须手-物互动 + 有物体 + 有语义：用几何平均，显得更"苛刻"
+            fused = pow(max(0.0001, scores.objectConfidence), 0.34)
+                  * pow(max(0.0001, scores.handObjectIoU), 0.33)
+                  * pow(max(0.0001, scores.textImageSimilarity), 0.33)
+        case .standard:
+            // 物体识别为主，语义辅助：重物体、轻语义
+            fused = min(1.0, (scores.objectConfidence * 0.7 + scores.textImageSimilarity * 0.3))
+        case .lenient:
+            // 仅语义匹配：更宽松
+            fused = scores.textImageSimilarity
         }
-        guard count > 0 else { return }
-        let mean = sum / Double(count)
-        let alpha = 0.06
-        brightnessEMA = alpha * mean + (1 - alpha) * brightnessEMA
-        var newProgress = CGFloat(min(1.0, max(0.0, brightnessEMA / 255.0)))
-        newProgress = max(progress + 0.01, newProgress)
 
+        // 持续前进（避免来回抖动），同时限制到 0-1
+        let newProgress = max(self.progress, min(1.0, fused * 1.05))
         DispatchQueue.main.async { self.progress = newProgress }
     }
 }
@@ -133,8 +130,17 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
 struct CaptureView: View {
     @EnvironmentObject var state: AppState
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var camera = CameraController()
+    @StateObject private var camera: CameraController
     @State private var isCapturing = false
+
+    init() {
+        // 默认关键词占位：后续与你的挑战词/用户自创词对接
+        let engine = SemanticEngine(targetKeywords: ["tree", "手", "大树"])
+        // 注意：这里无法直接访问 EnvironmentObject 的 settings，所以先创建一个临时 settings。
+        // 真正项目里建议把 settings 从上级注入或改为单例。
+        let tmpSettings = RBSettings()
+        _camera = StateObject(wrappedValue: CameraController(engine: engine, settings: tmpSettings))
+    }
 
     var body: some View {
         ZStack {
@@ -173,11 +179,18 @@ struct CaptureView: View {
 
                 Spacer()
 
-                Text(cameraStatusText)
-                    .font(.system(.headline, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .padding(.bottom, 12)
+                // 状态 + 调试信息（可关）
+                VStack(spacing: 6) {
+                    Text(camera.isAuthorized ? "语义快门已就绪" : "需要相机权限")
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.9))
+                    Text("模式：\(RBSettings().validationMode.rawValue)  ·  进度：\(Int(camera.progress * 100))%")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .padding(.bottom, 8)
 
+                // 进度环
                 ZStack {
                     Circle()
                         .strokeBorder(Color.white.opacity(0.25), lineWidth: 6)
@@ -195,13 +208,7 @@ struct CaptureView: View {
         .onDisappear { camera.stop() }
     }
 
-    private var cameraStatusText: String {
-        #if targetEnvironment(simulator)
-        return "模拟器不支持相机"
-        #else
-        return camera.isAuthorized ? "语义快门已就绪" : "需要相机权限"
-        #endif
-    }
+
 
     private func triggerCapture() {
         guard !isCapturing else { return }

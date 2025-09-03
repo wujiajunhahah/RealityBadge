@@ -41,6 +41,11 @@ struct RBSettings {
     @AppStorage("rb.style") var style: String = "embossed"
     @AppStorage("rb.enableParallax") var enableParallax: Bool = true
     @AppStorage("rb.push.freq") var pushFreq: Int = 1
+    @AppStorage("rb.validation.mode") var validationModeRaw: String = RBValidationMode.standard.rawValue
+    var validationMode: RBValidationMode {
+        get { RBValidationMode(rawValue: validationModeRaw) ?? .standard }
+        set { validationModeRaw = newValue.rawValue }
+    }
 }
 
 enum RBHaptics {
@@ -108,4 +113,12 @@ extension Color {
 
 struct RBColors {
     static let green = Color(hex: "#34C759")
+}
+
+// MARK: - Validation Mode
+enum RBValidationMode: String, CaseIterable, Identifiable {
+    case strict = "严格（手-物互动）"
+    case standard = "标准（识别物体）"
+    case lenient = "宽松（仅语义匹配）"
+    var id: String { rawValue }
 }
