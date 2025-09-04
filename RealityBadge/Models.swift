@@ -27,13 +27,18 @@ enum RBMode: String, CaseIterable, Identifiable {
     }
 }
 
-struct Badge: Identifiable, Hashable {
+struct Badge: Identifiable, Hashable, Codable {
     let id = UUID()
     let title: String
     let date: Date
     let style: String   // "embossed" / "film" / "pixel"
     let done: Bool
     let symbol: String  // SF Symbol placeholder
+    var imagePath: String? = nil   // 本地合成后的 PNG 路径
+    var thumbPath: String? = nil   // 缩略图路径
+    var capturePath: String? = nil // 原始抓拍图
+    var maskPath: String? = nil    // 主体掩膜（可选）
+    var depthPath: String? = nil   // 深度图（可选，灰度 PNG）
 }
 
 // MARK: - Settings & Haptics
@@ -60,13 +65,19 @@ final class RBMotion: ObservableObject {
     private let mgr = CMMotionManager()
     @Published var roll: Double = 0
     @Published var pitch: Double = 0
+    private var lastUpdate: TimeInterval = 0
+    private let alpha: Double = 0.18 // 低通滤波，越小越平滑
     func start() {
         guard mgr.isDeviceMotionAvailable else { return }
         mgr.deviceMotionUpdateInterval = 1.0/60.0
         mgr.startDeviceMotionUpdates(to: .main) { [weak self] data, _ in
-            guard let d = data else { return }
-            self?.roll = d.attitude.roll
-            self?.pitch = d.attitude.pitch
+            guard let self, let d = data else { return }
+            // 30Hz 节流 + 低通滤波，减少 SwiftUI 刷新压力
+            let now = CACurrentMediaTime()
+            if now - self.lastUpdate < (1.0/30.0) { return }
+            self.lastUpdate = now
+            self.roll = self.alpha * d.attitude.roll + (1 - self.alpha) * self.roll
+            self.pitch = self.alpha * d.attitude.pitch + (1 - self.alpha) * self.pitch
         }
     }
     func stop() { mgr.stopDeviceMotionUpdates() }
@@ -74,11 +85,7 @@ final class RBMotion: ObservableObject {
 
 final class AppState: ObservableObject {
     @Published var mode: RBMode = .discover
-    @Published var recentBadges: [Badge] = [
-        .init(title: "大树", date: .now, style: "embossed", done: true, symbol: "tree"),
-        .init(title: "咖啡杯", date: .now.addingTimeInterval(-86400.0*3), style: "film", done: true, symbol: "cup.and.saucer"),
-        .init(title: "雨伞", date: .now.addingTimeInterval(-86400.0*10), style: "pixel", done: false, symbol: "umbrella")
-    ]
+    @Published var recentBadges: [Badge] = BadgeStore.loadOrSamples()
     @Published var showSettings = false
     @Published var showCapture = false
     @Published var sheet: SheetRoute?
@@ -89,10 +96,16 @@ final class AppState: ObservableObject {
     enum SheetRoute: Identifiable {
         case importChallenge(title: String, hint: String)
         case badgePreview(Badge)
+        case capturePreview(image: UIImage, mask: CGImage?, title: String?, depth: CGImage?)
+        case immersive(image: UIImage, mask: CGImage?, depth: CGImage?)
+        case arDesk(image: UIImage)
         var id: String {
             switch self {
             case .importChallenge: return "import"
             case .badgePreview:    return "preview"
+            case .capturePreview:  return "capturePreview"
+            case .immersive:       return "immersive"
+            case .arDesk:          return "arDesk"
             }
         }
     }

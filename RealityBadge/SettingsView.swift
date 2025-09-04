@@ -24,6 +24,9 @@ struct SettingsView: View {
                         Text("每周 3 次").tag(3)
                         Text("关闭").tag(0)
                     }
+                    Button("测试推送（10 秒）") {
+                        NotificationManager.scheduleDebug(after: 10)
+                    }
                 }
                 Section("徽章与风格") {
                     Picker("默认风格", selection: $style) {
@@ -56,6 +59,8 @@ struct SettingsView: View {
                     Button("完成") { dismiss() }
                 }
             }
+            .onChange(of: pushTime) { _, _ in NotificationManager.rescheduleFromDefaults() }
+            .onChange(of: freq) { _, _ in NotificationManager.rescheduleFromDefaults() }
         }
     }
 }

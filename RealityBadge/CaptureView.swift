@@ -1,51 +1,7 @@
 import SwiftUI
 import AVFoundation
 import CoreVideo
-
-// 内联占位：语义分数与引擎，避免目标未包含独立文件时报错
-struct SemanticScores {
-    var objectConfidence: CGFloat
-    var handObjectIoU: CGFloat
-    var textImageSimilarity: CGFloat
-}
-
-final class SemanticEngine {
-    private var ema: Double = 0
-    private let keywords: [String]
-    init(targetKeywords: [String]) { self.keywords = targetKeywords }
-    func process(sampleBuffer: CMSampleBuffer) -> SemanticScores {
-        guard let pixel = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-            return .init(objectConfidence: 0, handObjectIoU: 0, textImageSimilarity: 0)
-        }
-        CVPixelBufferLockBaseAddress(pixel, .readOnly)
-        defer { CVPixelBufferUnlockBaseAddress(pixel, .readOnly) }
-        let w = CVPixelBufferGetWidthOfPlane(pixel, 0)
-        let h = CVPixelBufferGetHeightOfPlane(pixel, 0)
-        let bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(pixel, 0)
-        guard let baseAddr = CVPixelBufferGetBaseAddressOfPlane(pixel, 0) else {
-            return .init(objectConfidence: 0, handObjectIoU: 0, textImageSimilarity: 0)
-        }
-        let ptr = baseAddr.assumingMemoryBound(to: UInt8.self)
-        var sum: Double = 0
-        var count = 0
-        let strideY = max(1, h / 120)
-        let strideX = max(1, w * h / 8000)
-        for y in stride(from: 0, to: h, by: strideY) {
-            let row = ptr + y * bytesPerRow
-            for x in stride(from: 0, to: w, by: strideX) {
-                sum += Double(row[x])
-                count += 1
-            }
-        }
-        let mean = (count > 0) ? sum / Double(count) : 0
-        let alpha = 0.06
-        ema = alpha * mean + (1 - alpha) * ema
-        let norm = CGFloat(min(1.0, max(0.0, ema / 255.0)))
-        return .init(objectConfidence: norm,
-                     handObjectIoU: pow(norm, 0.8),
-                     textImageSimilarity: sqrt(norm))
-    }
-}
+import UIKit
 
 // 用专用 UIView 承载 AVPreviewLayer，更稳
 final class PreviewView: UIView {
@@ -67,18 +23,34 @@ struct CameraPreview: UIViewRepresentable {
     }
 }
 
-final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate, AVCaptureDepthDataOutputDelegate {
     @Published var isAuthorized = false
     @Published var isRunning = false
     @Published var progress: CGFloat = 0.0
     @Published var error: String?
+    @Published var scores: SemanticScores = .init(objectConfidence: 0, handObjectIoU: 0, textImageSimilarity: 0)
+    @Published var isVerified: Bool = false
+    @Published var hint: String = "保持稳定，准备自动抓拍"
+    @Published var bestLabel: String? = nil
+
+    // 新增：流水杯识别计时器
+    @Published var cupDetectionTime: TimeInterval = 0
+    @Published var isCupDetected: Bool = false
+    @Published var autoCaptureEnabled: Bool = true
+
+    private var cupDetectionStartTime: Date?
+    private var autoCaptureTimer: Timer?
 
     let session = AVCaptureSession()
     private let queue = DispatchQueue(label: "rb.camera.queue")
+    private let syncQueue = DispatchQueue(label: "rb.depth.queue")
 
     // 新增：语义引擎与设置
     private let engine: SemanticEngine
     private let settings: RBSettings
+    private let gate = StabilityGate(requiredFrames: 12, maxWindow: 18, driftTolerance: 0.12)
+    private var lastPixelBuffer: CVPixelBuffer?
+    private var lastDepthBuffer: CVPixelBuffer?
 
     init(engine: SemanticEngine, settings: RBSettings) {
         self.engine = engine
@@ -138,6 +110,19 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         if let conn = output.connection(with: .video), conn.isVideoOrientationSupported {
             conn.videoOrientation = .portrait
         }
+
+        // 深度数据（如支持）
+        let depthOutput = AVCaptureDepthDataOutput()
+        depthOutput.isFilteringEnabled = true
+        if session.canAddOutput(depthOutput) {
+            session.addOutput(depthOutput)
+            depthOutput.setDelegate(self, callbackQueue: syncQueue)
+            if let dconn = depthOutput.connection(with: .depthData), dconn.isVideoOrientationSupported { dconn.videoOrientation = .portrait }
+            // 选择支持深度的 format
+            if let best = device.activeFormat.supportedDepthDataFormats.first {
+                try? device.lockForConfiguration(); device.activeDepthDataFormat = best; device.unlockForConfiguration()
+            }
+        }
         session.commitConfiguration()
     }
 
@@ -148,11 +133,29 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         }
     }
 
+    // 恢复下一次创作：清理状态、重置稳定门槛
+    func resetCycle() {
+        gate.reset()
+        DispatchQueue.main.async {
+            self.progress = 0
+            self.isVerified = false
+            self.scores = .init(objectConfidence: 0, handObjectIoU: 0, textImageSimilarity: 0)
+            self.isCupDetected = false
+            self.cupDetectionStartTime = nil
+            self.cupDetectionTime = 0
+            self.autoCaptureEnabled = true
+            self.hint = "保持稳定，准备自动抓拍"
+        }
+    }
+
     // 将帧送入语义引擎，根据验证模式融合进度
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if let pb = CMSampleBufferGetImageBuffer(sampleBuffer) {
+            self.lastPixelBuffer = pb
+        }
         let scores = engine.process(sampleBuffer: sampleBuffer)
 
-        let fused: CGFloat
+        var fused: CGFloat
         switch settings.validationMode {
         case .strict:
             // 必须手-物互动 + 有物体 + 有语义：用几何平均，显得更"苛刻"
@@ -167,9 +170,189 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
             fused = scores.textImageSimilarity
         }
 
+        // 若明显命中目标但没有手部互动（适配“笑/月亮/黑衣服”等无需手部参与的类目），给予保底融合
+        if scores.handObjectIoU < 0.15 && scores.objectConfidence >= 0.75 && scores.textImageSimilarity >= 0.6 {
+            let fallback = min(1.0, scores.objectConfidence * 0.8 + scores.textImageSimilarity * 0.2)
+            fused = max(fused, fallback)
+        }
+
         // 持续前进（避免来回抖动），同时限制到 0-1
         let newProgress = max(self.progress, min(1.0, fused * 1.05))
-        DispatchQueue.main.async { self.progress = newProgress }
+
+        // 动态阈值（不同验证模式）
+        let threshold: CGFloat = {
+            switch settings.validationMode {
+            case .strict:   return 0.85
+            case .standard: return 0.70
+            case .lenient:  return 0.55
+            }
+        }()
+        let result = gate.push(scores: scores, fused: fused, threshold: threshold, mode: settings.validationMode)
+
+        // 新增：流水杯识别逻辑
+        let isCupDetected = self.isCupDetected(scores: scores)
+        self.updateCupDetectionState(isCupDetected)
+
+        DispatchQueue.main.async {
+            self.progress = newProgress
+            self.scores = scores
+            self.isVerified = result.passed
+            self.hint = result.hint
+            self.bestLabel = self.engine.bestLabel()
+        }
+    }
+
+    // 深度数据回调
+    func depthDataOutput(_ output: AVCaptureDepthDataOutput, didOutput depthData: AVDepthData, timestamp: CMTime, connection: AVCaptureConnection) {
+        lastDepthBuffer = depthData.depthDataMap
+    }
+
+    // 新增：检测是否识别到流水杯
+    private func isCupDetected(scores: SemanticScores) -> Bool {
+        // 检查是否包含流水杯相关的关键词匹配
+        // 降低阈值以适应VLM模型的输出范围
+        let hasSemanticMatch = scores.textImageSimilarity > 0.3  // 从0.7降低到0.3
+        let hasObjectMatch = scores.objectConfidence > 0.4      // 从0.6降低到0.4
+
+        // 只要有语义匹配或物体匹配就算检测到
+        return hasSemanticMatch || hasObjectMatch
+    }
+
+    // 新增：更新流水杯检测状态
+    private func updateCupDetectionState(_ detected: Bool) {
+        DispatchQueue.main.async {
+            if detected {
+                if !self.isCupDetected {
+                    // 开始检测到目标
+                    self.isCupDetected = true
+                    self.cupDetectionStartTime = Date()
+                    self.cupDetectionTime = 0
+                    self.hint = "检测到物体，正在计时..."
+                } else {
+                    // 继续检测，更新时间
+                    if let startTime = self.cupDetectionStartTime {
+                        self.cupDetectionTime = Date().timeIntervalSince(startTime)
+
+                        // 检查是否超过2秒
+                        if self.cupDetectionTime >= 2.0 && self.autoCaptureEnabled {
+                            self.autoCaptureEnabled = false // 防止重复触发
+                            self.performAutoCapture()
+                        }
+                    }
+                }
+            } else {
+                if self.isCupDetected {
+                    // 失去检测
+                    self.isCupDetected = false
+                    self.cupDetectionStartTime = nil
+                    self.cupDetectionTime = 0
+                    self.hint = "保持稳定，准备自动抓拍"
+                }
+            }
+        }
+    }
+
+    // 新增：执行自动拍照
+    private func performAutoCapture() {
+        DispatchQueue.main.async {
+            self.hint = "🎉 识别成功！正在拍照..."
+            self.isVerified = true
+
+            // 添加拍照逻辑
+            self.capturePhotoFromStream()
+
+            // 重置状态，准备下次检测
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.isCupDetected = false
+                self.cupDetectionStartTime = nil
+                self.cupDetectionTime = 0
+                self.autoCaptureEnabled = true
+                self.isVerified = false
+                self.hint = "保持稳定，准备自动抓拍"
+            }
+        }
+    }
+
+    // 新增：从相机流中拍照并保存
+    private func capturePhotoFromStream() {
+        // 创建照片输出
+        let photoOutput = AVCapturePhotoOutput()
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
+
+            let settings = AVCapturePhotoSettings()
+            settings.flashMode = .off
+
+            photoOutput.capturePhoto(with: settings, delegate: self)
+        }
+    }
+
+    // 新增：处理拍照结果
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard let imageData = photo.fileDataRepresentation(),
+              let uiImage = UIImage(data: imageData) else {
+            DispatchQueue.main.async {
+                self.hint = "拍照失败，请重试"
+            }
+            return
+        }
+
+        // 保存照片到相册
+        savePhotoToAlbum(uiImage)
+
+        DispatchQueue.main.async {
+            self.hint = "✅ 照片已保存到相册！"
+            RBHaptics.success()
+        }
+    }
+
+    // 快照 + 前景掩膜（可选）+ 深度图（可选）
+    func snapshotWithMask(completion: @escaping (UIImage?, CGImage?, CGImage?) -> Void) {
+        guard let pb = lastPixelBuffer else { completion(nil, nil, nil); return }
+        var img: UIImage? = nil
+        var mask: CGImage? = nil
+        var depth: CGImage? = nil
+        let group = DispatchGroup()
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            img = ForegroundMasker.image(from: pb)
+            group.leave()
+        }
+        if #available(iOS 17.0, *) {
+            group.enter()
+            DispatchQueue.global(qos: .userInitiated).async {
+                mask = ForegroundMasker.mask(from: pb)
+                group.leave()
+            }
+        }
+        if let db = lastDepthBuffer { // 粗略转换为 CGImage
+            group.enter()
+            DispatchQueue.global(qos: .userInitiated).async {
+                let ci = CIImage(cvPixelBuffer: db)
+                let ctx = CIContext()
+                depth = ctx.createCGImage(ci, from: ci.extent)
+                group.leave()
+            }
+        }
+        group.notify(queue: .main) { completion(img, mask, depth) }
+    }
+
+    // 新增：保存照片到相册
+    private func savePhotoToAlbum(_ image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+    }
+
+    // 新增：照片保存回调
+    @objc private func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            DispatchQueue.main.async {
+                self.hint = "保存失败：\(error.localizedDescription)"
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.hint = "📸 照片已保存到相册！"
+            }
+        }
     }
 }
 
@@ -178,10 +361,20 @@ struct CaptureView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var camera: CameraController
     @State private var isCapturing = false
+    @State private var didPreHaptic = false
 
     init() {
-        // 默认关键词占位：后续与你的挑战词/用户自创词对接
-        let engine = SemanticEngine(targetKeywords: ["tree", "手", "大树"])
+        // 目标改为：瓶子/屏幕/电脑（移除 cup，偏向 bottle）
+        let engine = SemanticEngine(targetKeywords: [
+            // 瓶子 / 水杯（英文优先）
+            "bottle", "water bottle", "drinking bottle",
+            // 屏幕
+            "screen", "monitor", "display", "television", "tv",
+            // 电脑
+            "computer", "laptop", "desktop", "notebook", "macbook", "pc",
+            // 中文关键词（供 VLM 文本相似度使用）
+            "水杯", "屏幕", "电脑"
+        ])
         // 注意：这里无法直接访问 EnvironmentObject 的 settings，所以先创建一个临时 settings。
         // 真正项目里建议把 settings 从上级注入或改为单例。
         let tmpSettings = RBSettings()
@@ -230,9 +423,31 @@ struct CaptureView: View {
                     Text(camera.isAuthorized ? "语义快门已就绪" : "需要相机权限")
                         .font(.system(.headline, design: .rounded))
                         .foregroundStyle(.white.opacity(0.9))
+
+                    // 新增：流水杯检测状态
+                    if camera.isCupDetected {
+                        HStack(spacing: 8) {
+                            Image(systemName: "viewfinder")
+                                .foregroundColor(.green)
+                            Text("目标检测中...")
+                                .font(.system(.headline, design: .rounded))
+                                .foregroundStyle(.green.opacity(0.9))
+                            Text(String(format: "%.1fs", camera.cupDetectionTime))
+                                .font(.system(.subheadline, design: .rounded))
+                                .foregroundStyle(.green.opacity(0.7))
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                    }
+
                     Text("模式：\(RBSettings().validationMode.rawValue)  ·  进度：\(Int(camera.progress * 100))%")
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(.white.opacity(0.7))
+                    calibrationBars(scores: camera.scores)
+                    Text(camera.hint)
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.85))
                 }
                 .padding(.bottom, 8)
 
@@ -250,7 +465,19 @@ struct CaptureView: View {
                 .padding(.bottom, 30)
             }
         }
-        .onChange(of: camera.progress) { _, v in if v >= 1.0 { triggerCapture() } }
+        .onChange(of: camera.progress) { old, v in
+            if !didPreHaptic, v >= 0.92 {
+                didPreHaptic = true
+                RBHaptics.light()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .rbCaptureResume)) { _ in
+            // 预览/保存流程结束，恢复下一次创作
+            didPreHaptic = false
+            isCapturing = false
+            camera.resetCycle()
+        }
+        .onChange(of: camera.isVerified) { _, ok in if ok { triggerCapture() } }
         .onDisappear { camera.stop() }
     }
 
@@ -260,9 +487,49 @@ struct CaptureView: View {
         guard !isCapturing else { return }
         isCapturing = true
         RBHaptics.success()
-        let new = Badge(title: "摸一棵大树", date: .now, style: state.settings.style, done: true, symbol: "tree")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            state.sheet = .badgePreview(new)
+        camera.snapshotWithMask { img, mask, depth in
+            guard let img else {
+                // 回退到老的徽章预览
+                let new = Badge(title: self.displayNameForLabel(camera.bestLabel), date: .now, style: state.settings.style, done: true, symbol: "seal")
+                state.recentBadges.insert(new, at: 0)
+                BadgeStore.save(state.recentBadges)
+                state.sheet = .badgePreview(new)
+                return
+            }
+            state.sheet = .capturePreview(image: img, mask: mask, title: self.displayNameForLabel(camera.bestLabel), depth: depth)
         }
     }
+
+    private func displayNameForLabel(_ label: String?) -> String {
+        guard let l = label?.lowercased() else { return "语义快门" }
+        if ["screen","monitor","display","television","tv"].contains(where: { l.contains($0) }) { return "屏幕" }
+        if ["computer","laptop","desktop","notebook","macbook","pc"].contains(where: { l.contains($0) }) { return "电脑" }
+        if ["bottle","water bottle","drinking bottle"].contains(where: { l.contains($0) }) { return "水杯" }
+        return l
+    }
+
+    @ViewBuilder
+    private func calibrationBars(scores: SemanticScores) -> some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 8) {
+                bar(title: "物体", value: scores.objectConfidence, color: .green)
+                bar(title: "互动", value: scores.handObjectIoU, color: .yellow)
+                bar(title: "语义", value: scores.textImageSimilarity, color: .orange)
+            }
+            .frame(height: 6)
+            .padding(.horizontal, 24)
+        }
+    }
+
+    private func bar(title: String, value: CGFloat, color: Color) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(.white.opacity(0.18))
+                Capsule().fill(color).frame(width: max(0, min(geo.size.width, geo.size.width * value)))
+            }
+            .accessibilityLabel(Text("\(title) \(Int(value * 100))%"))
+        }
+    }
+
+    // 不再提供取景灰框（语义快门）
 }

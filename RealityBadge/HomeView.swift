@@ -25,6 +25,21 @@ struct HomeView: View {
                 case .badgePreview(let badge):
                     BadgePreviewSheet(badge: badge)
                         .presentationDetents([.medium, .large])
+                case .capturePreview(let image, let mask, let title, let depth):
+                    CapturePreviewSheet(image: image, mask: mask, depth: depth, suggestedTitle: title) { generated in
+                        state.recentBadges.insert(generated, at: 0)
+                        BadgeStore.save(state.recentBadges)
+                        state.sheet = .badgePreview(generated)
+                    }
+                    .presentationDetents([.large])
+                case .immersive(let image, let mask, let depth):
+                    ImmersivePreviewView(image: image, mask: mask, depth: depth)
+                        .ignoresSafeArea()
+                        .presentationDetents([.large])
+                case .arDesk(let image):
+                    ARDeskPreviewView(image: image)
+                        .ignoresSafeArea()
+                        .presentationDetents([.large])
                 }
             }
             .navigationDestination(isPresented: $state.showCapture) {
@@ -153,10 +168,18 @@ struct BadgeCard: View {
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
-                Circle().fill(.ultraThinMaterial)
-                    .frame(width: 72, height: 72)
-                Image(systemName: badge.symbol)
-                    .font(.system(size: 28, weight: .semibold))
+                if let p = badge.thumbPath, let ui = UIImage(contentsOfFile: p) {
+                    Image(uiImage: ui)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 72, height: 72)
+                        .clipShape(Circle())
+                } else {
+                    Circle().fill(.ultraThinMaterial)
+                        .frame(width: 72, height: 72)
+                    Image(systemName: badge.symbol)
+                        .font(.system(size: 28, weight: .semibold))
+                }
             }
             Text(badge.title)
                 .font(.system(.footnote, design: .rounded).weight(.semibold))

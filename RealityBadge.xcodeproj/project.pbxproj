@@ -15,6 +15,21 @@
 		1AAPP0000000000100000006 /* BadgeWallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000006 /* BadgeWallView.swift */; };
 		1AAPP0000000000100000007 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000007 /* SettingsView.swift */; };
 		1AAPP0000000000100000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000008 /* Assets.xcassets */; };
+        1AAPP0000000000100000009 /* SemanticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF00000000010000000B /* SemanticEngine.swift */; };
+        1AAPP000000000010000000A /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF00000000010000000C /* NotificationManager.swift */; };
+        1AAPP000000000010000000B /* ShareExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF00000000010000000D /* ShareExporter.swift */; };
+        1AAPP000000000010000000C /* CaptureStability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF00000000010000000E /* CaptureStability.swift */; };
+        1AAPP000000000010000000D /* BadgeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF00000000010000000F /* BadgeStore.swift */; };
+        1AAPP000000000010000000E /* BadgeRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000010 /* BadgeRenderer.swift */; };
+        1AAPP000000000010000000F /* VLMSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000011 /* VLMSimilarity.swift */; };
+        1AAPP0000000000100000010 /* ForegroundMasker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000012 /* ForegroundMasker.swift */; };
+        1AAPP0000000000100000011 /* ParallaxPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000013 /* ParallaxPreviewView.swift */; };
+        1AAPP0000000000100000012 /* CapturePreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000014 /* CapturePreviewSheet.swift */; };
+        1AAPP0000000000100000013 /* BadgeComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000015 /* BadgeComposer.swift */; };
+        1AAPP0000000000100000014 /* ImmersivePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000016 /* ImmersivePreviewView.swift */; };
+        1AAPP0000000000100000015 /* ARDeskPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000017 /* ARDeskPreviewView.swift */; };
+        1AAPP0000000000100000016 /* DepthParallaxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000018 /* DepthParallaxView.swift */; };
+        1AAPP0000000000100000017 /* DepthProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000019 /* DepthProcessor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +42,22 @@
 		1AAPPF000000000100000007 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1AAPPF000000000100000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AAPPF000000000100000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1AAPPF00000000010000000A /* RealityBadge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealityBadge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+        1AAPPF00000000010000000A /* RealityBadge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealityBadge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+        1AAPPF00000000010000000B /* SemanticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemanticEngine.swift; sourceTree = "<group>"; };
+        1AAPPF00000000010000000C /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+        1AAPPF00000000010000000D /* ShareExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExporter.swift; sourceTree = "<group>"; };
+        1AAPPF00000000010000000E /* CaptureStability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureStability.swift; sourceTree = "<group>"; };
+        1AAPPF00000000010000000F /* BadgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeStore.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000010 /* BadgeRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeRenderer.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000011 /* VLMSimilarity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLMSimilarity.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000012 /* ForegroundMasker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForegroundMasker.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000013 /* ParallaxPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParallaxPreviewView.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000014 /* CapturePreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePreviewSheet.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000015 /* BadgeComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeComposer.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000016 /* ImmersivePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImmersivePreviewView.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000017 /* ARDeskPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARDeskPreviewView.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000018 /* DepthParallaxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepthParallaxView.swift; sourceTree = "<group>"; };
+        1AAPPF000000000100000019 /* DepthProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepthProcessor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,13 +96,38 @@
 				1AAPPF000000000100000004 /* CaptureView.swift */,
 				1AAPPF000000000100000005 /* Sheets.swift */,
 				1AAPPF000000000100000006 /* BadgeWallView.swift */,
-				1AAPPF000000000100000007 /* SettingsView.swift */,
-				1AAPPF000000000100000008 /* Assets.xcassets */,
-				1AAPPF000000000100000009 /* Info.plist */,
-			);
-			path = RealityBadge;
-			sourceTree = "<group>";
-		};
+                1AAPPF000000000100000007 /* SettingsView.swift */,
+                1AAPPF00000000010000000B /* SemanticEngine.swift */,
+                1AAPPF00000000010000000E /* CaptureStability.swift */,
+                1AAPPF00000000010000000C /* NotificationManager.swift */,
+                1AAPPF00000000010000000D /* ShareExporter.swift */,
+                1AAPPF000000000100000010 /* BadgeRenderer.swift */,
+                1AAPPF00000000010000000F /* BadgeStore.swift */,
+                1AAPPF000000000100000011 /* VLMSimilarity.swift */,
+                1AAPPF000000000100000012 /* ForegroundMasker.swift */,
+                1AAPPF000000000100000013 /* ParallaxPreviewView.swift */,
+                1AAPPF000000000100000014 /* CapturePreviewSheet.swift */,
+                1AAPPF000000000100000015 /* BadgeComposer.swift */,
+                1AAPPF000000000100000016 /* ImmersivePreviewView.swift */,
+                1AAPPF000000000100000017 /* ARDeskPreviewView.swift */,
+                1AAPPF000000000100000018 /* DepthParallaxView.swift */,
+                1AAPPF000000000100000019 /* DepthProcessor.swift */,
+                1AAPPMODELS /* Models */,
+                1AAPPF000000000100000008 /* Assets.xcassets */,
+                1AAPPF000000000100000009 /* Info.plist */,
+            );
+            path = RealityBadge;
+            sourceTree = "<group>";
+        };
+        1AAPPMODELS /* Models */ = {
+            isa = PBXGroup;
+            children = (
+                1AAPPMODELSREADME /* DROP_MODELS_HERE.md */,
+            );
+            path = Models;
+            sourceTree = "<group>";
+        };
+        1AAPPMODELSREADME /* DROP_MODELS_HERE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DROP_MODELS_HERE.md; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -80,6 +135,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1AAPPCONF /* Build configuration list for PBXNativeTarget "RealityBadge" */;
 			buildPhases = (
+				1AAPPMODELPHASE /* Compile Core ML Models */,
 				1AAPPRES /* Resources */,
 				1AAPPFRAMEWORKS /* Frameworks */,
 				1AAPPSOURCES /* Sources */,
@@ -137,6 +193,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		1AAPPMODELPHASE /* Compile Core ML Models */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Compile Core ML Models";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nMODELS_DIR=\"${SRCROOT}/RealityBadge/Models\"\nOUT_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nTMP_DIR=\"${TEMP_DIR}/rb_models\"\nmkdir -p \"${TMP_DIR}\" || true\nmkdir -p \"${OUT_DIR}\" || true\nif ! command -v xcrun >/dev/null 2>&1; then\n  echo \"[Models] xcrun not found; skip\"; exit 0; fi\nFOUND=0\nif ls \"$MODELS_DIR\"/*.mlmodel >/dev/null 2>&1; then FOUND=1; fi\nif [ \"$FOUND\" = \"0\" ]; then\n  echo \"[Models] No .mlmodel in $MODELS_DIR; skip\"; exit 0; fi\nfor m in \"$MODELS_DIR\"/*.mlmodel; do\n  echo \"[Models] Compiling $(basename \"$m\")\"\n  xcrun coremlc compile \"$m\" \"$TMP_DIR\" || { echo \"[Models] coremlc failed for $m\"; exit 0; }\n done\n# copy compiled\nif ls \"$TMP_DIR\"/*.mlmodelc >/dev/null 2>&1; then\n  for c in \"$TMP_DIR\"/*.mlmodelc; do\n    echo \"[Models] Copy $(basename \"$c\")\"\n    rsync -a \"$c\" \"$OUT_DIR\"/\n  done\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1AAPPSOURCES /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -148,8 +225,23 @@
 				1AAPP0000000000100000004 /* CaptureView.swift in Sources */,
 				1AAPP0000000000100000005 /* Sheets.swift in Sources */,
 				1AAPP0000000000100000006 /* BadgeWallView.swift in Sources */,
-				1AAPP0000000000100000007 /* SettingsView.swift in Sources */,
-			);
+                1AAPP0000000000100000007 /* SettingsView.swift in Sources */,
+                1AAPP0000000000100000009 /* SemanticEngine.swift in Sources */,
+                1AAPP000000000010000000C /* CaptureStability.swift in Sources */,
+                1AAPP000000000010000000A /* NotificationManager.swift in Sources */,
+                1AAPP000000000010000000B /* ShareExporter.swift in Sources */,
+                1AAPP000000000010000000E /* BadgeRenderer.swift in Sources */,
+                1AAPP000000000010000000D /* BadgeStore.swift in Sources */,
+                1AAPP000000000010000000F /* VLMSimilarity.swift in Sources */,
+                1AAPP0000000000100000010 /* ForegroundMasker.swift in Sources */,
+                1AAPP0000000000100000011 /* ParallaxPreviewView.swift in Sources */,
+                1AAPP0000000000100000012 /* CapturePreviewSheet.swift in Sources */,
+                1AAPP0000000000100000013 /* BadgeComposer.swift in Sources */,
+                1AAPP0000000000100000014 /* ImmersivePreviewView.swift in Sources */,
+                1AAPP0000000000100000015 /* ARDeskPreviewView.swift in Sources */,
+                1AAPP0000000000100000016 /* DepthParallaxView.swift in Sources */,
+                1AAPP0000000000100000017 /* DepthProcessor.swift in Sources */,
+            );
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */

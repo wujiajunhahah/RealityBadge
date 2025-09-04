@@ -33,5 +33,9 @@
   </array>
   <key>NSCameraUsageDescription</key>
   <string>需要相机权限以进行实时取景与生成徽章。</string>
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>保存你的创作到相册以便分享。</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>导入/保存图片时需要访问相册。</string>
 </dict>
 </plist>
