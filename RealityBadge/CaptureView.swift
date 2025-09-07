@@ -272,16 +272,58 @@ struct CaptureView: View {
 
                 // 进度环
                 ZStack {
+                    // 背景环
                     Circle()
-                        .strokeBorder(Color.white.opacity(0.25), lineWidth: 6)
+                        .strokeBorder(Color.white.opacity(0.15), lineWidth: 8)
                         .frame(width: 120, height: 120)
+                        .blur(radius: 1)
+                    
+                    // 进度环
                     Circle()
                         .trim(from: 0, to: camera.progress)
-                        .stroke(Color.white, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white,
+                                    Color.white.opacity(0.8)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                        )
                         .rotationEffect(.degrees(-90))
                         .frame(width: 120, height: 120)
+                        .shadow(color: .white.opacity(0.5), radius: 10)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: camera.progress)
+                    
+                    // 中心按钮
+                    if camera.progress >= 1.0 {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 80, height: 80)
+                            .transition(.scale.combined(with: .opacity))
+                            .onAppear {
+                                HapticEngine.shared.badgeUnlocked()
+                            }
+                    } else {
+                        Circle()
+                            .fill(Color.white.opacity(0.1))
+                            .frame(width: 80, height: 80)
+                            .overlay(
+                                Text("\(Int(camera.progress * 100))%")
+                                    .font(.system(.headline, design: .rounded, weight: .bold))
+                                    .foregroundStyle(.white)
+                            )
+                    }
                 }
                 .padding(.bottom, 30)
+                .onChange(of: camera.progress) { oldValue, newValue in
+                    // 渐进式触觉反馈
+                    if newValue - oldValue > 0.1 {
+                        HapticEngine.shared.objectDetected(confidence: Float(newValue))
+                    }
+                }
             }
         }
         .onChange(of: camera.progress) { _, v in if v >= 1.0 { triggerCapture() } }

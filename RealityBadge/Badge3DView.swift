@@ -143,11 +143,15 @@ struct Badge3DView: View {
             DragGesture()
                 .onChanged { value in
                     dragOffset = value.translation
+                    // 动态触觉反馈
+                    let intensity = min(1.0, sqrt(pow(value.translation.width, 2) + pow(value.translation.height, 2)) / 100)
+                    HapticEngine.shared.interact3D(intensity: Float(intensity))
                 }
                 .onEnded { _ in
                     accumulatedOffset.width += dragOffset.width
                     accumulatedOffset.height += dragOffset.height
                     dragOffset = .zero
+                    HapticEngine.shared.liquidTransition()
                 }
         )
         .animation(.spring(response: 0.5, dampingFraction: 0.8), value: dragOffset)
