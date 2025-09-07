@@ -82,6 +82,11 @@ final class AppState: ObservableObject {
     @Published var showSettings = false
     @Published var showCapture = false
     @Published var sheet: SheetRoute?
+    
+    // 存储最近捕获的图像数据
+    @Published var lastCapturedImage: UIImage?
+    @Published var lastSubjectMask: UIImage?
+    @Published var lastDepthMap: UIImage?
 
     // Shared settings accessible via @AppStorage
     let settings = RBSettings()
@@ -89,10 +94,12 @@ final class AppState: ObservableObject {
     enum SheetRoute: Identifiable {
         case importChallenge(title: String, hint: String)
         case badgePreview(Badge)
+        case badge3DPreview(Badge)
         var id: String {
             switch self {
             case .importChallenge: return "import"
             case .badgePreview:    return "preview"
+            case .badge3DPreview:  return "3dpreview"
             }
         }
     }
