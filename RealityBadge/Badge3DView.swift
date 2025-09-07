@@ -252,7 +252,8 @@ struct ParticleField: View {
     }
     
     private func createParticles(in size: CGSize) {
-        particles = (0..<30).map { _ in
+        let count = PerformanceConfig.particleCount
+        particles = (0..<count).map { _ in
             Particle(
                 x: CGFloat.random(in: 0...size.width),
                 y: CGFloat.random(in: 0...size.height),

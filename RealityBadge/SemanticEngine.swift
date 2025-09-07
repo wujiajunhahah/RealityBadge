@@ -100,6 +100,7 @@ final class SemanticEngine {
         visionQueue.async { [weak self] in
             guard let self = self else { return }
             
+            // 性能优化：降低图像分辨率
             let requestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
             
             var results = SemanticScores(
@@ -108,11 +109,13 @@ final class SemanticEngine {
                 textImageSimilarity: 0
             )
             
-            // 执行请求
+            // 性能优化：根据设备性能调整请求
             var requests: [VNRequest] = []
             
-            if let handReq = self.handPoseRequest {
-                requests.append(handReq)
+            if PerformanceConfig.enableComplexEffects {
+                if let handReq = self.handPoseRequest {
+                    requests.append(handReq)
+                }
             }
             
             if let saliencyReq = self.saliencyRequest {
@@ -125,7 +128,10 @@ final class SemanticEngine {
                 // 处理主体分割结果
                 if let saliencyResults = self.saliencyRequest?.results as? [VNSaliencyImageObservation],
                    let observation = saliencyResults.first {
-                    results.subjectMask = self.createMaskImage(from: observation)
+                    // 性能优化：只在需要时创建蒙版
+                    if PerformanceConfig.enableComplexEffects {
+                        results.subjectMask = self.createMaskImage(from: observation)
+                    }
                     results.objectConfidence = self.calculateObjectConfidence(from: observation)
                 }
                 

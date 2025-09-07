@@ -129,3 +129,17 @@ enum RBValidationMode: String, CaseIterable, Identifiable {
     case lenient = "宽松（仅语义匹配）"
     var id: String { rawValue }
 }
+
+// MARK: - 性能优化配置
+struct PerformanceConfig {
+    static let maxImageSize: CGFloat = 1920
+    static let thumbnailSize: CGFloat = 200
+    static let particleCount: Int = UIDevice.current.userInterfaceIdiom == .pad ? 30 : 20
+    static let animationDuration: Double = UIDevice.current.userInterfaceIdiom == .pad ? 2.0 : 1.5
+    static let enableComplexEffects: Bool = {
+        // 检查设备性能
+        let deviceModel = UIDevice.current.model
+        let processInfo = ProcessInfo.processInfo
+        return processInfo.physicalMemory > 3_000_000_000 // 3GB以上内存
+    }()
+}
