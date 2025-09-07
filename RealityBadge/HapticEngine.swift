@@ -262,7 +262,7 @@ final class HapticEngine {
         
         return try CHHapticPattern(
             events: events,
-            dynamicParameters: [parameter, parameter2]
+            parameters: [parameter, parameter2]
         )
     }
 }

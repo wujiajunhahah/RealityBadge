@@ -37,28 +37,14 @@ struct HomeView: View {
                     BadgePreviewSheet(badge: badge)
                         .presentationDetents([.medium, .large])
                 case .badge3DPreview(let badge):
-                    Badge3DView(
+                    BadgeResultSheet(
                         badge: badge,
                         capturedImage: state.lastCapturedImage,
                         subjectMask: state.lastSubjectMask,
                         depthMap: state.lastDepthMap
                     )
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.hidden)
-                    .interactiveDismissDisabled()
-                    .overlay(alignment: .topTrailing) {
-                        Button {
-                            state.sheet = nil
-                            // 添加到最近徽章
-                            state.recentBadges.insert(badge, at: 0)
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title)
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundStyle(.white)
-                                .padding()
-                        }
-                    }
+                    .presentationDetents([.medium, .large])
+                    .interactiveDismissDisabled(false)
                 }
             }
             .navigationDestination(isPresented: $state.showCapture) {

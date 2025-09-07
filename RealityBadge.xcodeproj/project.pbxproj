@@ -15,6 +15,12 @@
 		1AAPP0000000000100000006 /* BadgeWallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000006 /* BadgeWallView.swift */; };
 		1AAPP0000000000100000007 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000007 /* SettingsView.swift */; };
 		1AAPP0000000000100000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AAPPF000000000100000008 /* Assets.xcassets */; };
+		CB3D50B62E6D6A7600E6AD97 /* Animations.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B02E6D6A7600E6AD97 /* Animations.swift */; };
+		CB3D50B72E6D6A7600E6AD97 /* SemanticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B52E6D6A7600E6AD97 /* SemanticEngine.swift */; };
+		CB3D50B82E6D6A7600E6AD97 /* HapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B32E6D6A7600E6AD97 /* HapticEngine.swift */; };
+		CB3D50B92E6D6A7600E6AD97 /* Badge3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B12E6D6A7600E6AD97 /* Badge3DView.swift */; };
+		CB3D50BA2E6D6A7600E6AD97 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B22E6D6A7600E6AD97 /* ButtonStyles.swift */; };
+		CB3D50BB2E6D6A7600E6AD97 /* LiquidGlassEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B42E6D6A7600E6AD97 /* LiquidGlassEffect.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +34,12 @@
 		1AAPPF000000000100000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AAPPF000000000100000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1AAPPF00000000010000000A /* RealityBadge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealityBadge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB3D50B02E6D6A7600E6AD97 /* Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animations.swift; sourceTree = "<group>"; };
+		CB3D50B12E6D6A7600E6AD97 /* Badge3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge3DView.swift; sourceTree = "<group>"; };
+		CB3D50B22E6D6A7600E6AD97 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
+		CB3D50B32E6D6A7600E6AD97 /* HapticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticEngine.swift; sourceTree = "<group>"; };
+		CB3D50B42E6D6A7600E6AD97 /* LiquidGlassEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassEffect.swift; sourceTree = "<group>"; };
+		CB3D50B52E6D6A7600E6AD97 /* SemanticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemanticEngine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +72,12 @@
 		1AAPPSRC /* RealityBadge */ = {
 			isa = PBXGroup;
 			children = (
+				CB3D50B02E6D6A7600E6AD97 /* Animations.swift */,
+				CB3D50B12E6D6A7600E6AD97 /* Badge3DView.swift */,
+				CB3D50B22E6D6A7600E6AD97 /* ButtonStyles.swift */,
+				CB3D50B32E6D6A7600E6AD97 /* HapticEngine.swift */,
+				CB3D50B42E6D6A7600E6AD97 /* LiquidGlassEffect.swift */,
+				CB3D50B52E6D6A7600E6AD97 /* SemanticEngine.swift */,
 				1AAPPF000000000100000001 /* RealityBadgeApp.swift */,
 				1AAPPF000000000100000002 /* Models.swift */,
 				1AAPPF000000000100000003 /* HomeView.swift */,
@@ -144,6 +162,12 @@
 			files = (
 				1AAPP0000000000100000001 /* RealityBadgeApp.swift in Sources */,
 				1AAPP0000000000100000002 /* Models.swift in Sources */,
+				CB3D50B62E6D6A7600E6AD97 /* Animations.swift in Sources */,
+				CB3D50B72E6D6A7600E6AD97 /* SemanticEngine.swift in Sources */,
+				CB3D50B82E6D6A7600E6AD97 /* HapticEngine.swift in Sources */,
+				CB3D50B92E6D6A7600E6AD97 /* Badge3DView.swift in Sources */,
+				CB3D50BA2E6D6A7600E6AD97 /* ButtonStyles.swift in Sources */,
+				CB3D50BB2E6D6A7600E6AD97 /* LiquidGlassEffect.swift in Sources */,
 				1AAPP0000000000100000003 /* HomeView.swift in Sources */,
 				1AAPP0000000000100000004 /* CaptureView.swift in Sources */,
 				1AAPP0000000000100000005 /* Sheets.swift in Sources */,
@@ -209,7 +233,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+                TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -266,7 +290,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+                TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

@@ -20,7 +20,18 @@ struct BadgeWallView: View {
                             Text(dateString(b.date)).font(.system(.caption2, design: .rounded)).foregroundStyle(.secondary)
                         }
                         .padding(10)
-                        .background(RoundedRectangle(cornerRadius: 16).fill(Color(.secondarySystemBackground)))
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.white.opacity(0.15))
+                                )
+                        )
+                        .onTapGesture {
+                            HapticEngine.selection()
+                            state.sheet = .badge3DPreview(b)
+                        }
                     }
                     // 占位未完成
                     ForEach(0..<6, id: \.self) { _ in

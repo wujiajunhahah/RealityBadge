@@ -24,6 +24,25 @@ final class SemanticEngine {
     private var saliencyRequest: VNGenerateAttentionBasedSaliencyImageRequest?
     private var classificationRequest: VNCoreMLRequest?
     private var previousHandPosition: CGPoint?
+    // 缓存最近的异步语义结果（供下一帧合并）
+    private var latestSemanticScores: SemanticScores?
+    
+    // 语义同义词表（中英混合），用于更稳的匹配
+    // key 为规范类别名（用于 UI 显示/符号映射），values 为可匹配的同义词
+    private let synonymMap: [String: Set<String>] = [
+        // 屏幕/显示类
+        "屏幕": ["screen","display","monitor","tv","lcd","led","oled","retina","computer screen","laptop screen"],
+        // iPad/平板（也兼容 tablet）
+        "iPad": ["ipad","tablet","pad","ipados"],
+        // 耳机/耳塞
+        "耳机": ["headphones","headset","earphones","earbuds","airpods","airpods pro","earpod"],
+        // 水杯/杯子/马克杯
+        "水杯": ["cup","mug","coffee cup","tea cup","tumbler","water cup","water bottle","bottle"],
+        // 雨伞
+        "雨伞": ["umbrella","parasol"],
+        // 纸张/文件/文档/书页
+        "纸张": ["paper","document","documents","doc","sheet","page","a4","letter","notebook","book","printout","receipt"]
+    ]
     
     // 存储最近的帧用于处理
     private var latestPixelBuffer: CVPixelBuffer?
@@ -43,8 +62,8 @@ final class SemanticEngine {
             do {
                 // 获取手掌中心点
                 let thumbTip = try firstHand.recognizedPoint(.thumbTip)
-                let indexTip = try firstHand.recognizedPoint(.indexFingerTip)
-                let middleTip = try firstHand.recognizedPoint(.middleFingerTip)
+                let indexTip = try firstHand.recognizedPoint(.indexTip)
+                let middleTip = try firstHand.recognizedPoint(.middleTip)
                 
                 let centerX = (thumbTip.x + indexTip.x + middleTip.x) / 3
                 let centerY = (thumbTip.y + indexTip.y + middleTip.y) / 3
@@ -86,11 +105,21 @@ final class SemanticEngine {
         // 基础分析（快速响应）
         let basicScores = analyzeBasicFeatures(pixelBuffer: pixelBuffer)
         scores.objectConfidence = basicScores.objectConfidence
-        scores.textImageSimilarity = calculateSemanticSimilarity(for: pixelBuffer)
+        // 结合“识别到的标签”与目标关键词/同义词做语义相似度
+        scores.textImageSimilarity = calculateSemanticSimilarity()
         
         // 如果有手势位置，计算交互分数
         if let handPos = previousHandPosition {
             scores.handObjectIoU = calculateHandObjectInteraction(handPos: handPos)
+        }
+        
+        // 合并最近一次Vision处理的异步结果（标签/蒙版/深度等）
+        if let cached = visionQueue.sync(execute: { latestSemanticScores }) {
+            scores.subjectMask = cached.subjectMask
+            scores.depthMap = cached.depthMap
+            scores.semanticLabel = cached.semanticLabel
+            // 采用更保守/更高的物体置信度
+            scores.objectConfidence = max(scores.objectConfidence, cached.objectConfidence)
         }
         
         return scores
@@ -141,13 +170,16 @@ final class SemanticEngine {
             } catch {
                 print("Vision request failed: \(error)")
             }
-            
+            // 缓存结果供主循环合并
+            self.visionQueue.async { [weak self] in
+                self?.latestSemanticScores = results
+            }
             completion(results)
         }
     }
     
     private func createMaskImage(from observation: VNSaliencyImageObservation) -> UIImage? {
-        guard let pixelBuffer = observation.pixelBuffer else { return nil }
+        let pixelBuffer = observation.pixelBuffer
         
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let context = CIContext()
@@ -168,7 +200,7 @@ final class SemanticEngine {
     
     private func calculateObjectConfidence(from observation: VNSaliencyImageObservation) -> CGFloat {
         // 基于显著性图的强度计算置信度
-        guard let pixelBuffer = observation.pixelBuffer else { return 0 }
+        let pixelBuffer = observation.pixelBuffer
         
         CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
         defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
@@ -201,16 +233,42 @@ final class SemanticEngine {
         return max(0, 1.0 - centerDistance * 2)
     }
     
-    private func calculateSemanticSimilarity(for pixelBuffer: CVPixelBuffer) -> CGFloat {
-        // 模拟语义相似度计算
-        // 实际项目中应该使用CLIP或其他多模态模型
-        return CGFloat.random(in: 0.3...0.8)
+    private func calculateSemanticSimilarity() -> CGFloat {
+        // 读取最近一次模拟/识别标签（英文更常见），并与目标关键词 + 同义词匹配
+        // 真实项目：这里应使用 CLIP/LLM/VLM 的文本-图像相似度
+        let label = lastSimulatedLabel?.lowercased() ?? ""
+        if label.isEmpty { return 0.2 }
+
+        // 将目标关键词统一小写
+        let target = Set(keywords.map { $0.lowercased() })
+
+        // 若目标关键词中任一出现在标签中，判为高匹配
+        if target.contains(where: { label.contains($0) }) { return 0.9 }
+
+        // 同义词匹配：若标签落入任何一个类别的同义词集合，也给较高分
+        for (_, synonyms) in synonymMap {
+            if synonyms.contains(where: { label.contains($0) }) {
+                return 0.85
+            }
+        }
+
+        // 关键词部分命中（例如单词重叠）给中等分
+        let labelTokens = Set(label.split { !$0.isLetter }.map(String.init))
+        if target.intersection(labelTokens).isEmpty == false { return 0.6 }
+
+        return 0.25
     }
     
+    private var lastSimulatedLabel: String?
     private func simulateVLMRecognition() -> String {
-        // 模拟VLM识别结果
-        let objects = ["树木", "咖啡杯", "雨伞", "手机", "书本", "花朵", "钥匙", "眼镜"]
-        return objects.randomElement() ?? "未知物体"
+        // 更贴近你的需求：重点覆盖屏幕/iPad/耳机/水杯/雨伞/纸张等英文标签
+        let focus = [
+            "screen","display","monitor","ipad","tablet","headphones","earbuds","airpods",
+            "cup","mug","water bottle","umbrella","paper","document","notebook","book"
+        ]
+        let label = focus.randomElement() ?? "object"
+        lastSimulatedLabel = label
+        return label
     }
     
     private func analyzeBasicFeatures(pixelBuffer: CVPixelBuffer) -> (objectConfidence: CGFloat, brightness: CGFloat) {
@@ -232,10 +290,10 @@ final class SemanticEngine {
         var pixelCount = 0
         
         // 采样计算亮度和方差
-        let stride = max(1, width * height / 10000)
+        let strideValue = max(1, width * height / 10000)
         
         for y in stride(from: 0, to: height, by: max(1, height / 100)) {
-            for x in stride(from: 0, to: width, by: stride) {
+            for x in stride(from: 0, to: width, by: strideValue) {
                 let pixel = Double(buffer[y * bytesPerRow + x])
                 sum += pixel
                 pixelCount += 1
@@ -246,7 +304,7 @@ final class SemanticEngine {
         
         // 计算方差（用于判断是否有物体）
         for y in stride(from: 0, to: height, by: max(1, height / 100)) {
-            for x in stride(from: 0, to: width, by: stride) {
+            for x in stride(from: 0, to: width, by: strideValue) {
                 let pixel = Double(buffer[y * bytesPerRow + x])
                 variance += pow(pixel - mean, 2)
             }

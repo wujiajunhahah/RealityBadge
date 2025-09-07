@@ -188,9 +188,16 @@ struct Badge3DView: View {
         }
         .padding(badgeSize * 0.08)
         .background(
-            RoundedRectangle(cornerRadius: badgeSize * 0.08)
-                .fill(.ultraThinMaterial)
-                .opacity(0.8)
+            ZStack {
+                RoundedRectangle(cornerRadius: badgeSize * 0.08)
+                    .fill(.ultraThinMaterial)
+                    .opacity(0.8)
+                // 液态玻璃高光
+                if #available(iOS 16.0, *) {
+                    LiquidGlassView(opacity: 0.25, blur: 12)
+                        .clipShape(RoundedRectangle(cornerRadius: badgeSize * 0.08))
+                }
+            }
         )
     }
 }

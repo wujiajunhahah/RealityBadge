@@ -55,8 +55,8 @@ struct LiquidGlassView: View {
                                     Color.white.opacity(0.3),
                                     Color.clear
                                 ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                                startPoint: CGPoint(x: 0, y: 0),
+                                endPoint: CGPoint(x: 1, y: 1)
                             )
                         )
                     }
@@ -115,7 +115,7 @@ struct AdvancedMaterial: ViewModifier {
             .overlay(materialOverlay)
             .scaleEffect(isPressed ? 0.95 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
-            .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity) { _ in
+            .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity) {
                 isPressed = true
                 HapticEngine.tap()
             } onPressingChanged: { pressing in
