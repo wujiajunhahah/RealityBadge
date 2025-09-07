@@ -3,17 +3,28 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var state: AppState
     @Namespace private var ns
+    @State private var headerScale: CGFloat = 1.0
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                header
-                badgesPreview
-                modeDial
-                startButton
+            ZStack {
+                // 动态背景
+                AnimatedGradientBackground(colors: [
+                    Color(hex: "#1a1a2e"),
+                    Color(hex: "#16213e"),
+                    Color(hex: "#0f3460")
+                ])
+                
+                VStack(spacing: 20) {
+                    header
+                        .scaleEffect(headerScale)
+                    badgesPreview
+                    modeDial
+                    startButton
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
             .sheet(isPresented: $state.showSettings) { SettingsView() }
             .sheet(item: $state.sheet) { route in
                 switch route {
@@ -25,6 +36,29 @@ struct HomeView: View {
                 case .badgePreview(let badge):
                     BadgePreviewSheet(badge: badge)
                         .presentationDetents([.medium, .large])
+                case .badge3DPreview(let badge):
+                    Badge3DView(
+                        badge: badge,
+                        capturedImage: state.lastCapturedImage,
+                        subjectMask: state.lastSubjectMask,
+                        depthMap: state.lastDepthMap
+                    )
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.hidden)
+                    .interactiveDismissDisabled()
+                    .overlay(alignment: .topTrailing) {
+                        Button {
+                            state.sheet = nil
+                            // 添加到最近徽章
+                            state.recentBadges.insert(badge, at: 0)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title)
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundStyle(.white)
+                                .padding()
+                        }
+                    }
                 }
             }
             .navigationDestination(isPresented: $state.showCapture) {
@@ -58,6 +92,7 @@ struct HomeView: View {
             HStack {
                 Text("徽章库")
                     .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .foregroundStyle(.white)
                 Spacer()
                 NavigationLink {
                     BadgeWallView()
@@ -65,19 +100,35 @@ struct HomeView: View {
                     Label("查看全部徽章", systemImage: "chevron.right")
                         .labelStyle(.titleAndIcon)
                         .font(.system(.footnote, design: .rounded))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Capsule())
                 }
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
                     ForEach(state.recentBadges) { b in
                         BadgeCard(badge: b)
-                            .onTapGesture { state.sheet = .badgePreview(b) }
+                            .onTapGesture { 
+                                HapticEngine.selection()
+                                state.sheet = .badgePreview(b) 
+                            }
                     }
                 }
                 .padding(.vertical, 6)
             }
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+        )
     }
     
     private var modeDial: some View {
@@ -104,7 +155,27 @@ struct HomeView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 180)
-            .onChange(of: state.mode) { _, _ in RBHaptics.light() }
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.2),
+                                        Color.white.opacity(0.05)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    )
+            )
+            .onChange(of: state.mode) { _, _ in 
+                HapticEngine.selection()
+            }
             
             HStack(spacing: 6) {
                 ForEach(RBMode.allCases) { m in
@@ -119,7 +190,7 @@ struct HomeView: View {
     
     private var startButton: some View {
         Button {
-            RBHaptics.medium()
+            HapticEngine.shared.captureSuccess()
             switch state.mode {
             case .discover:
                 state.showCapture = true
@@ -131,14 +202,43 @@ struct HomeView: View {
                 state.sheet = .importChallenge(title: "我的收藏：雨伞", hint: "雨天的小仪式")
             }
         } label: {
-            Text("开始")
-                .font(.system(.title3, design: .rounded).weight(.bold))
+            ZStack {
+                // 液态玻璃背景
+                if #available(iOS 17.0, *) {
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    RBColors.green,
+                                    RBColors.green.opacity(0.8)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            LiquidGlassView(opacity: 0.3, blur: 10)
+                                .clipShape(Capsule())
+                        )
+                } else {
+                    Capsule()
+                        .fill(RBColors.green)
+                }
+                
+                HStack(spacing: 8) {
+                    Image(systemName: "camera.aperture")
+                        .font(.system(size: 20, weight: .semibold))
+                        .symbolRenderingMode(.hierarchical)
+                    Text("开始探索")
+                        .font(.system(.title3, design: .rounded).weight(.bold))
+                }
                 .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(RBColors.green, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .shadow(color: RBColors.green.opacity(0.25), radius: 12, x: 0, y: 6)
+            }
+            .frame(height: 56)
+            .shadow(color: RBColors.green.opacity(0.4), radius: 20, x: 0, y: 10)
+            .shadow(color: RBColors.green.opacity(0.2), radius: 40, x: 0, y: 20)
         }
+        .buttonStyle(ScaleButtonStyle())
     }
 }
 

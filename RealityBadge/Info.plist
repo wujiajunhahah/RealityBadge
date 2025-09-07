@@ -26,12 +26,26 @@
     <true/>
   </dict>
   <key>UIRequiresFullScreen</key>
-  <true/>
+  <false/>
+  <key>ITSAppUsesNonExemptEncryption</key>
+  <false/>
   <key>UISupportedInterfaceOrientations</key>
   <array>
     <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+  </array>
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
   </array>
   <key>NSCameraUsageDescription</key>
   <string>需要相机权限以进行实时取景与生成徽章。</string>
+  <key>NSMotionUsageDescription</key>
+  <string>需要访问陀螺仪以实现3D视差效果。</string>
 </dict>
 </plist>

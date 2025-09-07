@@ -21,14 +21,17 @@ struct CameraPreview: UIViewRepresentable {
     }
 }
 
-final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate {
     @Published var isAuthorized = false
     @Published var isRunning = false
     @Published var progress: CGFloat = 0.0
     @Published var error: String?
+    @Published var currentScores: SemanticScores?
+    @Published var capturedFrame: UIImage?
 
     let session = AVCaptureSession()
     private let queue = DispatchQueue(label: "rb.camera.queue")
+    private let photoOutput = AVCapturePhotoOutput()
 
     // 新增：语义引擎与设置
     private let engine: SemanticEngine
@@ -92,6 +95,12 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         if let conn = output.connection(with: .video), conn.isVideoOrientationSupported {
             conn.videoOrientation = .portrait
         }
+        
+        // 添加照片输出
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
+        }
+        
         session.commitConfiguration()
     }
 
@@ -105,6 +114,11 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
     // 将帧送入语义引擎，根据验证模式融合进度
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let scores = engine.process(sampleBuffer: sampleBuffer)
+        
+        // 保存当前分数
+        DispatchQueue.main.async {
+            self.currentScores = scores
+        }
 
         let fused: CGFloat
         switch settings.validationMode {
@@ -125,6 +139,23 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         let newProgress = max(self.progress, min(1.0, fused * 1.05))
         DispatchQueue.main.async { self.progress = newProgress }
     }
+    
+    // 捕获照片
+    func capturePhoto() {
+        let settings = AVCapturePhotoSettings()
+        photoOutput.capturePhoto(with: settings, delegate: self)
+    }
+    
+    // AVCapturePhotoCaptureDelegate
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard error == nil,
+              let data = photo.fileDataRepresentation(),
+              let image = UIImage(data: data) else { return }
+        
+        DispatchQueue.main.async {
+            self.capturedFrame = image
+        }
+    }
 }
 
 struct CaptureView: View {
@@ -132,6 +163,10 @@ struct CaptureView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var camera: CameraController
     @State private var isCapturing = false
+    @State private var capturedImage: UIImage?
+    @State private var subjectMask: UIImage?
+    @State private var depthMap: UIImage?
+    @State private var semanticLabel: String = ""
 
     init() {
         // 默认关键词占位：后续与你的挑战词/用户自创词对接
@@ -180,31 +215,131 @@ struct CaptureView: View {
                 Spacer()
 
                 // 状态 + 调试信息（可关）
-                VStack(spacing: 6) {
-                    Text(camera.isAuthorized ? "语义快门已就绪" : "需要相机权限")
+                VStack(spacing: 8) {
+                    if !semanticLabel.isEmpty {
+                        HStack {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 14, weight: .medium))
+                            Text("识别到：\(semanticLabel)")
+                                .font(.system(.subheadline, design: .rounded, weight: .medium))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Capsule())
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                    
+                    Text(camera.isAuthorized ? "对准物体，等待识别" : "需要相机权限")
                         .font(.system(.headline, design: .rounded))
                         .foregroundStyle(.white.opacity(0.9))
-                    Text("模式：\(RBSettings().validationMode.rawValue)  ·  进度：\(Int(camera.progress * 100))%")
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.7))
+                    
+                    HStack(spacing: 16) {
+                        // 物体检测指示器
+                        VStack(spacing: 4) {
+                            Image(systemName: "viewfinder")
+                                .font(.system(size: 20))
+                            Text("\(Int(camera.progress * 100))%")
+                                .font(.system(.caption2, design: .rounded))
+                        }
+                        .foregroundStyle(.white.opacity(camera.progress > 0.3 ? 1 : 0.5))
+                        
+                        // 手势交互指示器
+                        VStack(spacing: 4) {
+                            Image(systemName: "hand.raised")
+                                .font(.system(size: 20))
+                            Text(camera.progress > 0.5 ? "检测到" : "未检测")
+                                .font(.system(.caption2, design: .rounded))
+                        }
+                        .foregroundStyle(.white.opacity(camera.progress > 0.5 ? 1 : 0.5))
+                        
+                        // 语义匹配指示器
+                        VStack(spacing: 4) {
+                            Image(systemName: "text.magnifyingglass")
+                                .font(.system(size: 20))
+                            Text(camera.progress > 0.7 ? "匹配" : "识别中")
+                                .font(.system(.caption2, design: .rounded))
+                        }
+                        .foregroundStyle(.white.opacity(camera.progress > 0.7 ? 1 : 0.5))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding(.bottom, 8)
 
                 // 进度环
                 ZStack {
+                    // 背景环
                     Circle()
-                        .strokeBorder(Color.white.opacity(0.25), lineWidth: 6)
+                        .strokeBorder(Color.white.opacity(0.15), lineWidth: 8)
                         .frame(width: 120, height: 120)
+                        .blur(radius: 1)
+                    
+                    // 进度环
                     Circle()
                         .trim(from: 0, to: camera.progress)
-                        .stroke(Color.white, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white,
+                                    Color.white.opacity(0.8)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                        )
                         .rotationEffect(.degrees(-90))
                         .frame(width: 120, height: 120)
+                        .shadow(color: .white.opacity(0.5), radius: 10)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: camera.progress)
+                    
+                    // 中心按钮
+                    if camera.progress >= 1.0 {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 80, height: 80)
+                            .transition(.scale.combined(with: .opacity))
+                            .onAppear {
+                                HapticEngine.shared.badgeUnlocked()
+                            }
+                    } else {
+                        Circle()
+                            .fill(Color.white.opacity(0.1))
+                            .frame(width: 80, height: 80)
+                            .overlay(
+                                Text("\(Int(camera.progress * 100))%")
+                                    .font(.system(.headline, design: .rounded, weight: .bold))
+                                    .foregroundStyle(.white)
+                            )
+                    }
                 }
                 .padding(.bottom, 30)
+                .onChange(of: camera.progress) { oldValue, newValue in
+                    // 渐进式触觉反馈
+                    if newValue - oldValue > 0.1 {
+                        HapticEngine.shared.objectDetected(confidence: Float(newValue))
+                    }
+                }
             }
         }
         .onChange(of: camera.progress) { _, v in if v >= 1.0 { triggerCapture() } }
+        .onChange(of: camera.currentScores?.semanticLabel) { _, newLabel in
+            if let label = newLabel {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    semanticLabel = label
+                }
+            }
+        }
+        .onChange(of: camera.currentScores) { _, scores in
+            if let scores = scores {
+                subjectMask = scores.subjectMask
+                depthMap = scores.depthMap
+            }
+        }
         .onDisappear { camera.stop() }
     }
 
@@ -214,9 +349,52 @@ struct CaptureView: View {
         guard !isCapturing else { return }
         isCapturing = true
         RBHaptics.success()
-        let new = Badge(title: "摸一棵大树", date: .now, style: state.settings.style, done: true, symbol: "tree")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            state.sheet = .badgePreview(new)
+        
+        // 捕获当前帧
+        camera.capturePhoto()
+        
+        // 使用识别到的标签或默认标签
+        let title = semanticLabel.isEmpty ? "未知物体" : semanticLabel
+        let symbol = getSymbolForObject(title)
+        
+        let new = Badge(
+            title: title,
+            date: .now,
+            style: state.settings.style,
+            done: true,
+            symbol: symbol
+        )
+        
+        // 等待照片捕获完成
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            // 保存捕获的数据到state中
+            if let capturedImage = self.camera.capturedFrame {
+                self.state.lastCapturedImage = capturedImage
+                self.state.lastSubjectMask = self.subjectMask
+                self.state.lastDepthMap = self.depthMap
+            }
+            
+            self.state.sheet = .badge3DPreview(new)
+            
+            // 重置状态
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.isCapturing = false
+                self.camera.progress = 0
+            }
         }
+    }
+    
+    private func getSymbolForObject(_ object: String) -> String {
+        let symbolMap: [String: String] = [
+            "树木": "tree",
+            "咖啡杯": "cup.and.saucer",
+            "雨伞": "umbrella",
+            "手机": "iphone",
+            "书本": "book",
+            "花朵": "leaf",
+            "钥匙": "key",
+            "眼镜": "eyeglasses"
+        ]
+        return symbolMap[object] ?? "questionmark.circle"
     }
 }
