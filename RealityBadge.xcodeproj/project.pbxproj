@@ -26,13 +26,13 @@
 		RB0000010000000000000005 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000006 /* AppDelegate.swift */; };
 		RB0000010000000000000007 /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000008 /* ImageUtils.swift */; };
 		RB0000010000000000000009 /* feature_flags.json in Resources */ = {isa = PBXBuildFile; fileRef = RB000001000000000000000A /* feature_flags.json */; };
-		RB0000010000000000000013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000014 /* PrivacyInfo.xcprivacy */; };
-		RB0000010000000000000017 /* ServicesAuthPurchase.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000018 /* ServicesAuthPurchase.swift */; };
 		RB000001000000000000000B /* VibrationTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB000001000000000000000C /* VibrationTransport.swift */; };
 		RB000001000000000000000D /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB000001000000000000000E /* Repository.swift */; };
 		RB000001000000000000000F /* Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000010 /* Migration.swift */; };
 		RB0000010000000000000011 /* Rendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000012 /* Rendering.swift */; };
+		RB0000010000000000000013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000014 /* PrivacyInfo.xcprivacy */; };
 		RB0000010000000000000015 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000016 /* Router.swift */; };
+		RB0000010000000000000017 /* ServicesAuthPurchase.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000018 /* ServicesAuthPurchase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,8 +61,8 @@
 		RB000001000000000000000E /* Repository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		RB0000010000000000000010 /* Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migration.swift; sourceTree = "<group>"; };
 		RB0000010000000000000012 /* Rendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rendering.swift; sourceTree = "<group>"; };
-		RB0000010000000000000016 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		RB0000010000000000000014 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		RB0000010000000000000016 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		RB0000010000000000000018 /* ServicesAuthPurchase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesAuthPurchase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -281,7 +281,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-                TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -338,7 +338,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-                TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

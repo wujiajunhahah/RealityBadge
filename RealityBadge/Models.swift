@@ -4,22 +4,22 @@ import UIKit
 import CoreMotion
 
 enum RBMode: String, CaseIterable, Identifiable {
-    case discover = "寻找新词"
-    case daily    = "今日挑战"
-    case trends   = "当前热点"
-    case saved    = "我的收藏"
+    case discover = "Discover"
+    case daily    = "Daily Challenge"
+    case trends   = "Trends"
+    case saved    = "Saved"
     var id: String { rawValue }
     var subtitle: String {
         switch self {
-        case .discover: return "拍任何东西，生成新词条"
-        case .daily:    return "系统推送的每日一题"
-        case .trends:   return "结合节日/天气的动态主题"
-        case .saved:    return "你保存的待收集词条"
+        case .discover: return "Point at anything to create a badge"
+        case .daily:    return "One prompt every day"
+        case .trends:   return "Seasonal and trending topics"
+        case .saved:    return "Your saved prompts"
         }
     }
     var symbol: String {
         switch self {
-        case .discover: return "aperture"
+        case .discover: return "camera.aperture"
         case .daily:    return "sun.min"
         case .trends:   return "sparkles"
         case .saved:    return "bookmark"
@@ -169,9 +169,9 @@ struct RBColors {
 
 // MARK: - Validation Mode
 enum RBValidationMode: String, CaseIterable, Identifiable {
-    case strict = "严格（手-物互动）"
-    case standard = "标准（识别物体）"
-    case lenient = "宽松（仅语义匹配）"
+    case strict = "Strict (hand-object)"
+    case standard = "Standard (object)"
+    case lenient = "Lenient (semantic only)"
     var id: String { rawValue }
 }
 

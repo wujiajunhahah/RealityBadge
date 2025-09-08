@@ -14,11 +14,30 @@ struct CameraPreview: UIViewRepresentable {
         let v = PreviewView()
         v.previewLayer.session = session
         v.previewLayer.videoGravity = .resizeAspectFill
+        // Ensure proper orientation for the preview layer
+        if let conn = v.previewLayer.connection {
+            if #available(iOS 17.0, *) {
+                if conn.isVideoRotationAngleSupported(90) {
+                    conn.videoRotationAngle = 90
+                }
+            } else if conn.isVideoOrientationSupported {
+                conn.videoOrientation = .portrait
+            }
+        }
         return v
     }
     func updateUIView(_ uiView: PreviewView, context: Context) {
         uiView.previewLayer.session = session
         uiView.previewLayer.videoGravity = .resizeAspectFill
+        if let conn = uiView.previewLayer.connection {
+            if #available(iOS 17.0, *) {
+                if conn.isVideoRotationAngleSupported(90) {
+                    conn.videoRotationAngle = 90
+                }
+            } else if conn.isVideoOrientationSupported {
+                conn.videoOrientation = .portrait
+            }
+        }
     }
 }
 
@@ -31,7 +50,9 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
     @Published var capturedFrame: UIImage?
 
     let session = AVCaptureSession()
-    private let queue = DispatchQueue(label: "rb.camera.queue")
+    // Use separate queues to avoid starving session operations with frame processing
+    private let sessionQueue = DispatchQueue(label: "rb.camera.session")
+    private let outputQueue = DispatchQueue(label: "rb.camera.output")
     private let photoOutput = AVCapturePhotoOutput()
 
     // 新增：语义引擎与设置
@@ -63,7 +84,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
     }
 
     private func startSession() {
-        queue.async {
+        sessionQueue.async {
             self.configureSession()
             self.session.startRunning()
             DispatchQueue.main.async { self.isRunning = true }
@@ -99,7 +120,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         output.alwaysDiscardsLateVideoFrames = true
         output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String:
                                 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange]
-        output.setSampleBufferDelegate(self, queue: queue)
+        output.setSampleBufferDelegate(self, queue: outputQueue)
         if session.canAddOutput(output) { session.addOutput(output) }
 
         if let conn = output.connection(with: .video) {
@@ -129,7 +150,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
     }
 
     func stop() {
-        queue.async {
+        sessionQueue.async {
             if self.session.isRunning { self.session.stopRunning() }
             DispatchQueue.main.async { self.isRunning = false }
         }
@@ -331,12 +352,12 @@ struct CaptureView: View {
     @ViewBuilder
     private var backgroundView: some View {
         #if targetEnvironment(simulator)
-        // 模拟器没有相机
-        LinearGradient(colors: [.black, .gray.opacity(0.6)], startPoint: .top, endPoint: .bottom)
+        // Simulator has no camera – show friendly light gradient
+        LinearGradient(colors: [Color(hex: "#F7FBFF"), Color(hex: "#F3F8FF")], startPoint: .top, endPoint: .bottom)
             .overlay(
-                Text("相机在模拟器不可用，请用真机运行")
+                Text("Camera unavailable in Simulator\nRun on a device")
                     .font(.system(.headline, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(.black.opacity(0.7))
                     .padding()
             )
             .ignoresSafeArea()
@@ -345,7 +366,7 @@ struct CaptureView: View {
             CameraPreview(session: camera.session)
                 .ignoresSafeArea()
         } else {
-            LinearGradient(colors: [.black, .gray.opacity(0.6)], startPoint: .top, endPoint: .bottom)
+            LinearGradient(colors: [Color(hex: "#F7FBFF"), Color(hex: "#F3F8FF")], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
         }
         #endif
@@ -383,9 +404,9 @@ struct CaptureView: View {
                 semanticLabelView
             }
             
-            Text(camera.isAuthorized ? "对准物体，等待识别" : "需要相机权限")
+            Text(camera.isAuthorized ? "Align object and hold steady" : "Camera permission required")
                 .font(.system(.headline, design: .rounded))
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(.white.opacity(0.95))
             
             indicatorsView
         }
@@ -397,7 +418,7 @@ struct CaptureView: View {
         HStack {
             Image(systemName: "sparkles")
                 .font(.system(size: 14, weight: .medium))
-            Text("识别到：\(semanticLabel)")
+            Text("Detected: \(semanticLabel)")
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
         }
         .foregroundStyle(.white)
@@ -419,13 +440,13 @@ struct CaptureView: View {
             
             indicatorView(
                 icon: "hand.raised",
-                text: camera.progress > 0.5 ? "检测到" : "未检测",
+                text: camera.progress > 0.5 ? "Hand" : "No Hand",
                 isActive: camera.progress > 0.5
             )
             
             indicatorView(
                 icon: "text.magnifyingglass",
-                text: camera.progress > 0.7 ? "匹配" : "识别中",
+                text: camera.progress > 0.7 ? "Match" : "Analyzing",
                 isActive: camera.progress > 0.7
             )
         }
@@ -503,7 +524,7 @@ struct CaptureView: View {
                     .fill(Color.white.opacity(0.15))
                     .frame(width: 80, height: 80)
                     .overlay(
-                        Text("生成")
+                        Text("Create")
                             .font(.system(.headline, design: .rounded, weight: .bold))
                             .foregroundStyle(.white)
                     )

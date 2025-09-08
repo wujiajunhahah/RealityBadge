@@ -22,7 +22,7 @@ final class SemanticEngine {
     private let visionQueue = DispatchQueue(label: "rb.vision.queue")
     private var handPoseRequest: VNDetectHumanHandPoseRequest?
     private var saliencyRequest: VNGenerateAttentionBasedSaliencyImageRequest?
-    private var classificationRequest: VNCoreMLRequest?
+    private var classificationRequest: VNClassifyImageRequest?
     private var previousHandPosition: CGPoint?
     // 缓存最近的异步语义结果（供下一帧合并）
     private var latestSemanticScores: SemanticScores?
@@ -77,6 +77,17 @@ final class SemanticEngine {
         
         // 主体分割（显著性检测）
         saliencyRequest = VNGenerateAttentionBasedSaliencyImageRequest()
+
+        // 系统内置通用图像分类器（无需额外模型）
+        classificationRequest = VNClassifyImageRequest(completionHandler: { [weak self] request, error in
+            guard error == nil,
+                  let results = request.results as? [VNClassificationObservation],
+                  let top = results.first else { return }
+            self?.lastLabel = top.identifier
+            // 将顶层置信度作为物体存在度的上界之一
+            var r = SemanticScores(objectConfidence: CGFloat(top.confidence), handObjectIoU: 0, textImageSimilarity: 0)
+            self?.latestSemanticScores = r
+        })
     }
     
     func process(sampleBuffer: CMSampleBuffer) -> SemanticScores {
@@ -150,6 +161,9 @@ final class SemanticEngine {
             if let saliencyReq = self.saliencyRequest {
                 requests.append(saliencyReq)
             }
+            if let classifyReq = self.classificationRequest {
+                requests.append(classifyReq)
+            }
             
             do {
                 try requestHandler.perform(requests)
@@ -164,8 +178,8 @@ final class SemanticEngine {
                     results.objectConfidence = self.calculateObjectConfidence(from: observation)
                 }
                 
-                // 模拟VLM识别（实际项目中接入真实API）
-                results.semanticLabel = self.simulateVLMRecognition()
+                // 读取分类标签（如无则回退到模拟标签）
+                results.semanticLabel = self.lastLabel ?? self.simulateVLMRecognition()
                 
             } catch {
                 print("Vision request failed: \(error)")
@@ -236,7 +250,7 @@ final class SemanticEngine {
     private func calculateSemanticSimilarity() -> CGFloat {
         // 读取最近一次模拟/识别标签（英文更常见），并与目标关键词 + 同义词匹配
         // 真实项目：这里应使用 CLIP/LLM/VLM 的文本-图像相似度
-        let label = lastSimulatedLabel?.lowercased() ?? ""
+        let label = lastLabel?.lowercased() ?? ""
         if label.isEmpty { return 0.2 }
 
         // 将目标关键词统一小写
@@ -259,7 +273,7 @@ final class SemanticEngine {
         return 0.25
     }
     
-    private var lastSimulatedLabel: String?
+    private var lastLabel: String?
     private func simulateVLMRecognition() -> String {
         // 更贴近你的需求：重点覆盖屏幕/iPad/耳机/水杯/雨伞/纸张等英文标签
         let focus = [
@@ -267,7 +281,7 @@ final class SemanticEngine {
             "cup","mug","water bottle","umbrella","paper","document","notebook","book"
         ]
         let label = focus.randomElement() ?? "object"
-        lastSimulatedLabel = label
+        lastLabel = label
         return label
     }
     

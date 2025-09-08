@@ -45,7 +45,12 @@ struct Badge3DView: View {
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
             }
         }
-        .background(Color.black.opacity(0.9))
+        .background(
+            LinearGradient(colors: [
+                Color(hex: "#F7FBFF"),
+                Color(hex: "#F3F8FF")
+            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
         .onAppear { 
             motionManager.start()
             updateCutout()
@@ -68,6 +73,9 @@ struct Badge3DView: View {
                     .aspectRatio(contentMode: .fill)
                     .blur(radius: 20)
                     .opacity(0.3)
+                    .ignoresSafeArea()
+            } else {
+                LinearGradient(colors: [Color(hex: "#EAF7FF"), Color(hex: "#EDEBFE")], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
             }
             

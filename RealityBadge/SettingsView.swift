@@ -82,6 +82,23 @@ struct SettingsView: View {
                     Button("完成") { dismiss() }
                 }
             }
+            .onAppear {
+                // 修正历史版本可能存储的中文值，确保与 Picker 的 tag 匹配
+                let known = Set(RBValidationMode.allCases.map { $0.rawValue })
+                if !known.contains(validationModeRaw) {
+                    // 旧版中文映射 → 英文枚举
+                    let mapping: [String: String] = [
+                        "严格（手-物交互）": RBValidationMode.strict.rawValue,
+                        "标准（物体为主）": RBValidationMode.standard.rawValue,
+                        "宽松（仅语义匹配）": RBValidationMode.lenient.rawValue
+                    ]
+                    if let mapped = mapping[validationModeRaw] {
+                        validationModeRaw = mapped
+                    } else {
+                        validationModeRaw = RBValidationMode.standard.rawValue
+                    }
+                }
+            }
         }
         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.rbadge], allowsMultipleSelection: false) { result in
             if case let .success(urls) = result, let url = urls.first {

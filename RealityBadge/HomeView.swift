@@ -8,11 +8,11 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // 动态背景
+                // Lighter, youthful animated background
                 AnimatedGradientBackground(colors: [
-                    Color(hex: "#1a1a2e"),
-                    Color(hex: "#16213e"),
-                    Color(hex: "#0f3460")
+                    Color(hex: "#EAF7FF"),
+                    Color(hex: "#EAFBF4"),
+                    Color(hex: "#F3EBFF")
                 ])
                 
                 VStack(spacing: 20) {
@@ -62,7 +62,7 @@ struct HomeView: View {
             }
             Spacer()
             VStack(spacing: 4) {
-                Text("现实勋章")
+                Text("Reality Badges")
                     .font(.system(.largeTitle, design: .rounded).weight(.bold))
                 Text(dateString(.now))
                     .font(.system(.callout, design: .rounded))
@@ -76,20 +76,20 @@ struct HomeView: View {
     private var badgesPreview: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("徽章库")
+                Text("Badge Library")
                     .font(.system(.title3, design: .rounded).weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.black.opacity(0.9))
                 Spacer()
                 NavigationLink {
                     BadgeWallView()
                 } label: {
-                    Label("查看全部徽章", systemImage: "chevron.right")
+                    Label("View All", systemImage: "chevron.right")
                         .labelStyle(.titleAndIcon)
                         .font(.system(.footnote, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.black.opacity(0.6))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
-                        .background(.ultraThinMaterial)
+                        .background(.thinMaterial)
                         .clipShape(Capsule())
                 }
             }
@@ -190,48 +190,44 @@ struct HomeView: View {
             case .discover:
                 state.showCapture = true
             case .daily:
-                state.sheet = .importChallenge(title: "今日挑战：摸一棵大树", hint: "镜头遇见树与手，它会自己知道")
+                state.sheet = .importChallenge(title: "Daily Challenge: Touch a Tree", hint: "Point the camera at your hand and a tree")
             case .trends:
-                state.sheet = .importChallenge(title: "热点：中秋·月亮", hint: "今晚，看一眼天空")
+                state.sheet = .importChallenge(title: "Trend: Mid‑Autumn • Moon", hint: "Tonight, look up and capture the moon")
             case .saved:
-                state.sheet = .importChallenge(title: "我的收藏：雨伞", hint: "雨天的小仪式")
+                state.sheet = .importChallenge(title: "Saved Prompt: Umbrella", hint: "A small rainy‑day ritual")
             }
         } label: {
             ZStack {
-                // 液态玻璃背景
+                // Vibrant pill button
                 if #available(iOS 17.0, *) {
                     Capsule()
                         .fill(
                             LinearGradient(
-                                colors: [
-                                    RBColors.green,
-                                    RBColors.green.opacity(0.8)
-                                ],
+                                colors: [Color(hex: "#34C759"), Color(hex: "#2BC0E4")],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .overlay(
-                            LiquidGlassView(opacity: 0.3, blur: 10)
+                            LiquidGlassView(opacity: 0.25, blur: 10)
                                 .clipShape(Capsule())
                         )
                 } else {
-                    Capsule()
-                        .fill(RBColors.green)
+                    Capsule().fill(Color(hex: "#2BC0E4"))
                 }
-                
+
                 HStack(spacing: 8) {
                     Image(systemName: "camera.aperture")
                         .font(.system(size: 20, weight: .semibold))
                         .symbolRenderingMode(.hierarchical)
-                    Text("开始探索")
+                    Text("Start Exploring")
                         .font(.system(.title3, design: .rounded).weight(.bold))
                 }
                 .foregroundStyle(.white)
             }
             .frame(height: 56)
-            .shadow(color: RBColors.green.opacity(0.4), radius: 20, x: 0, y: 10)
-            .shadow(color: RBColors.green.opacity(0.2), radius: 40, x: 0, y: 20)
+            .shadow(color: Color(hex: "#2BC0E4").opacity(0.25), radius: 20, x: 0, y: 10)
+            .shadow(color: Color(hex: "#34C759").opacity(0.2), radius: 40, x: 0, y: 20)
         }
         .buttonStyle(ScaleButtonStyle())
     }

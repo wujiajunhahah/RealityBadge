@@ -6,7 +6,7 @@ struct BadgeWallView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text("本周进度 3/7")
+                Text("This Week 3/7")
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(.secondary)
                 LazyVGrid(columns: columns, spacing: 14) {
@@ -63,7 +63,7 @@ struct BadgeWallView: View {
                     ForEach(0..<6, id: \.self) { _ in
                         VStack(spacing: 8) {
                             Circle().strokeBorder(Color.secondary.opacity(0.25), lineWidth: 2).frame(width: 72, height: 72)
-                            Text("待收集").font(.system(.footnote, design: .rounded))
+                            Text("Soon").font(.system(.footnote, design: .rounded))
                             Text("--").font(.system(.caption2, design: .rounded)).foregroundStyle(.secondary)
                         }
                         .padding(10)
@@ -73,7 +73,7 @@ struct BadgeWallView: View {
             }
             .padding(16)
         }
-        .navigationTitle("徽章库")
+        .navigationTitle("Badge Library")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

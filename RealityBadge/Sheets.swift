@@ -22,7 +22,7 @@ struct ChallengeSheet: View {
                 .font(.system(size: 40, weight: .semibold))
                 .padding(8)
             Button(action: onAccept) {
-                Text("立即创作")
+                Text("Create Now")
                     .font(.system(.headline, design: .rounded).weight(.bold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -66,7 +66,7 @@ struct BadgePreviewSheet: View {
 
             HStack(spacing: 12) {
                 Button { generateShareImage() } label: {
-                    Label("保存预览", systemImage: "square.and.arrow.down")
+                    Label("Save Preview", systemImage: "square.and.arrow.down")
                         .font(.system(.headline, design: .rounded).weight(.bold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
@@ -74,7 +74,7 @@ struct BadgePreviewSheet: View {
                 }
                 if let url = shareURL {
                     ShareLink(item: url) {
-                        Label("分享", systemImage: "square.and.arrow.up")
+                        Label("Share", systemImage: "square.and.arrow.up")
                             .font(.system(.headline, design: .rounded).weight(.bold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -83,7 +83,7 @@ struct BadgePreviewSheet: View {
                     }
                 } else {
                     Button { generateShareImage() } label: {
-                        Label("分享", systemImage: "square.and.arrow.up")
+                        Label("Share", systemImage: "square.and.arrow.up")
                             .font(.system(.headline, design: .rounded).weight(.bold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -135,10 +135,10 @@ struct BadgeResultSheet: View {
         VStack(spacing: 12) {
             Capsule().fill(Color.secondary.opacity(0.3)).frame(width: 44, height: 5).padding(.top, 6)
             // Segmented control
-            Picker("预览方式", selection: $mode) {
-                Text("3D卡片").tag(PreviewMode.card3D)
+            Picker("Preview Mode", selection: $mode) {
+                Text("3D Card").tag(PreviewMode.card3D)
                 Text("AR").tag(PreviewMode.ar)
-                Text("沉浸").tag(PreviewMode.immersive)
+                Text("Immersive").tag(PreviewMode.immersive)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, 16)
@@ -180,7 +180,7 @@ struct BadgeResultSheet: View {
                     saved = true
                     RBHaptics.success()
                 } label: {
-                    Label(saved ? "已保存" : "保存到库", systemImage: saved ? "checkmark.circle" : "square.and.arrow.down")
+                    Label(saved ? "Saved" : "Save to Library", systemImage: saved ? "checkmark.circle" : "square.and.arrow.down")
                         .font(.system(.headline, design: .rounded).weight(.bold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
@@ -197,7 +197,7 @@ struct BadgeResultSheet: View {
                         state.showCapture = true
                     }
                 } label: {
-                    Label("继续拍摄", systemImage: "camera")
+                    Label("Continue", systemImage: "camera")
                         .font(.system(.headline, design: .rounded).weight(.bold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -221,7 +221,14 @@ struct ARBadgeView: UIViewRepresentable {
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = [.horizontal]
         view.session.run(config)
-        // 轻点屏幕放置“卡片”实体（使用照片贴图）
+        // Coaching overlay for better plane detection
+        let coaching = ARCoachingOverlayView()
+        coaching.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        coaching.goal = .horizontalPlane
+        coaching.session = view.session
+        view.addSubview(coaching)
+
+        // Tap to place a card entity (with photo texture)
         let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
         view.addGestureRecognizer(tap)
         context.coordinator.view = view
@@ -239,26 +246,32 @@ struct ARBadgeView: UIViewRepresentable {
             let loc = gr.location(in: view)
             if let result = view.raycast(from: loc, allowing: .estimatedPlane, alignment: .horizontal).first {
                 let anchor = AnchorEntity(world: result.worldTransform)
-                // 计算平面比例
+                // Use a thin box for better visual presence (not just flat)
                 let w: Float = 0.18
-                let h: Float = 0.18
-                let mesh = MeshResource.generatePlane(width: w, height: h, cornerRadius: 0.01)
+                let h: Float = 0.11
+                let t: Float = 0.003
+                let mesh = MeshResource.generateBox(size: [w, t, h], cornerRadius: 0.01)
                 var mat: RealityKit.Material
-                if let img = image, let tex = try? TextureResource.generate(from: img.cgImage!, options: .init(semantic: .color)) {
-                    var unlit = UnlitMaterial()
-                    unlit.color = .init(texture: .init(tex))
-                    mat = unlit
+                if let img = image, let cg = img.cgImage, let tex = try? TextureResource.generate(from: cg, options: .init(semantic: .color)) {
+                    var pbr = PhysicallyBasedMaterial()
+                    pbr.baseColor = .init(texture: .init(tex))
+                    pbr.roughness = 0.4
+                    pbr.metallic = 0.0
+                    mat = pbr
                 } else {
-                    var simple = SimpleMaterial()
-                    simple.color = .init(tint: .white.withAlphaComponent(0.9), texture: nil)
-                    mat = simple
+                    var pbr = PhysicallyBasedMaterial()
+                    pbr.baseColor = .init(tint: .white.withAlphaComponent(0.95))
+                    pbr.roughness = 0.4
+                    mat = pbr
                 }
                 let card = ModelEntity(mesh: mesh, materials: [mat])
-                // 轻微弹跳动画
+                // Soft bounce-in animation
                 card.transform.translation = [0, 0.02, 0]
                 anchor.addChild(card)
                 view.scene.addAnchor(anchor)
                 card.move(to: Transform(), relativeTo: anchor, duration: 0.5, timingFunction: RealityKit.AnimationTimingFunction.easeOut)
+                // Enable translation / rotation / scale gestures for interaction
+                view.installGestures([.translation, .rotation, .scale], for: card)
             }
         }
     }
@@ -266,7 +279,7 @@ struct ARBadgeView: UIViewRepresentable {
 #else
 struct ARBadgeView: View {
     let badge: Badge
-    var body: some View { Text("AR 不可用").frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.black) }
+    var body: some View { Text("AR not available").frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.black.opacity(0.05)) }
 }
 #endif
 
@@ -287,7 +300,7 @@ struct ImmersivePhotoView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color.white.ignoresSafeArea()
                 if let ui = image {
                     // 轻微放大避免视差暴露边缘
                     Image(uiImage: ui)
@@ -299,7 +312,7 @@ struct ImmersivePhotoView: View {
                         .clipped()
                         .ignoresSafeArea()
                 } else {
-                    LinearGradient(colors: [.black, .gray.opacity(0.6)], startPoint: .top, endPoint: .bottom)
+                    LinearGradient(colors: [Color(hex: "#F7FBFF"), Color(hex: "#F3F8FF")], startPoint: .top, endPoint: .bottom)
                         .ignoresSafeArea()
                 }
                 
