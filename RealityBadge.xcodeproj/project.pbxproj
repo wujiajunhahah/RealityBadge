@@ -47,8 +47,6 @@
 		1AAPPF000000000100000007 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1AAPPF000000000100000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AAPPF000000000100000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		RBLOCREF0000000000000001 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
-		RBVISREF0000000000000001 /* VisionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionUtils.swift; sourceTree = "<group>"; };
 		1AAPPF00000000010000000A /* RealityBadge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealityBadge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3D50B02E6D6A7600E6AD97 /* Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animations.swift; sourceTree = "<group>"; };
 		CB3D50B12E6D6A7600E6AD97 /* Badge3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge3DView.swift; sourceTree = "<group>"; };
@@ -68,6 +66,8 @@
 		RB0000010000000000000014 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		RB0000010000000000000016 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		RB0000010000000000000018 /* ServicesAuthPurchase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesAuthPurchase.swift; sourceTree = "<group>"; };
+		RBLOCREF0000000000000001 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		RBVISREF0000000000000001 /* VisionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
