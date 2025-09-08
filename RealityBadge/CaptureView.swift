@@ -122,10 +122,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
             if #available(iOS 13.0, *), photoOutput.isPortraitEffectsMatteDeliverySupported {
                 photoOutput.isPortraitEffectsMatteDeliveryEnabled = true
             }
-            if #available(iOS 13.0, *), photoOutput.isSemanticSegmentationMatteDeliverySupported {
-                photoOutput.isSemanticSegmentationMatteDeliveryEnabled = true
-                photoOutput.enabledSemanticSegmentationMatteTypes = photoOutput.availableSemanticSegmentationMatteTypes
-            }
+            // 语义分割蒙版（部分工具链下不可用，改为运行时使用显著性/前景实例生成）
         }
         
         session.commitConfiguration()
@@ -176,9 +173,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         if #available(iOS 13.0, *), photoOutput.isPortraitEffectsMatteDeliveryEnabled {
             settings.isPortraitEffectsMatteDeliveryEnabled = true
         }
-        if #available(iOS 13.0, *), photoOutput.isSemanticSegmentationMatteDeliveryEnabled {
-            settings.embedsSemanticSegmentationMattesInPhoto = true
-        }
+        // 不强制嵌入语义分割蒙版，避免编译器对 API 的可用性解析差异
         photoOutput.capturePhoto(with: settings, delegate: self)
     }
     
@@ -205,13 +200,8 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         } else {
             let src = image
             DispatchQueue.global(qos: .userInitiated).async {
-                var mask: UIImage? = nil
-                if #available(iOS 17.0, *) {
-                    mask = Self.generateForegroundMaskVN(image: src)
-                }
-                if mask == nil {
-                    mask = Self.generateSaliencyMask(image: src)
-                }
+                // 统一使用显著性图近似蒙版，避免对 iOS17+ 专有类型的编译依赖
+                let mask = Self.generateSaliencyMask(image: src)
                 if let m = mask {
                     DispatchQueue.main.async { self.capturedSubjectMask = m }
                 }
@@ -251,30 +241,14 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
 
 // MARK: - Subject Mask Generation (Vision)
 extension CameraController {
-    @available(iOS 17.0, *)
-    static func generateForegroundMaskVN(image: UIImage) -> UIImage? {
-        guard let cg = image.cgImage else { return nil }
-        let req = VNGenerateForegroundInstanceMaskRequest()
-        let handler = VNImageRequestHandler(cgImage: cg, orientation: .up, options: [:])
-        do {
-            try handler.perform([req])
-            guard let obs = req.results?.first as? VNForegroundInstanceMaskObservation else { return nil }
-            // 合成所有实例的掩码图
-            let maskedCG = try obs.generateMaskedImage(ofInstances: obs.allInstances, from: cg)
-            return UIImage(cgImage: maskedCG, scale: image.scale, orientation: image.imageOrientation)
-        } catch {
-            return nil
-        }
-    }
-
     static func generateSaliencyMask(image: UIImage) -> UIImage? {
         guard let cg = image.cgImage else { return nil }
         let req = VNGenerateAttentionBasedSaliencyImageRequest()
         let handler = VNImageRequestHandler(cgImage: cg, orientation: .up, options: [:])
         do {
             try handler.perform([req])
-            guard let sal = req.results?.first as? VNSaliencyImageObservation,
-                  let pb = sal.pixelBuffer else { return nil }
+            guard let sal = req.results?.first as? VNSaliencyImageObservation else { return nil }
+            let pb = sal.pixelBuffer
             // 提升对比作为近似蒙版
             let ci = CIImage(cvPixelBuffer: pb)
                 .applyingFilter("CIColorControls", parameters: [

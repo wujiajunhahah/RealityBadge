@@ -243,7 +243,7 @@ struct ARBadgeView: UIViewRepresentable {
                 let w: Float = 0.18
                 let h: Float = 0.18
                 let mesh = MeshResource.generatePlane(width: w, height: h, cornerRadius: 0.01)
-                var mat: Material
+                var mat: RealityKit.Material
                 if let img = image, let tex = try? TextureResource.generate(from: img.cgImage!, options: .init(semantic: .color)) {
                     var unlit = UnlitMaterial()
                     unlit.color = .init(texture: .init(tex))
@@ -258,7 +258,7 @@ struct ARBadgeView: UIViewRepresentable {
                 card.transform.translation = [0, 0.02, 0]
                 anchor.addChild(card)
                 view.scene.addAnchor(anchor)
-                card.move(to: Transform(identity), relativeTo: anchor, duration: 0.5, timingFunction: .easeOut)
+                card.move(to: Transform(), relativeTo: anchor, duration: 0.5, timingFunction: RealityKit.AnimationTimingFunction.easeOut)
             }
         }
     }
