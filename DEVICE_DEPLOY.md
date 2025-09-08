@@ -20,10 +20,15 @@ Tips
 - If install fails, try: `npm i -g ios-deploy` and re‑run the script (it will fallback).
 - First run may ask you to trust the developer on device: Settings → General → VPN & Device Management → Developer App → Trust.
 
+Advanced (Vision object detection)
+- By default, subject masks use Apple saliency/Portrait Matte for broad compatibility.
+- To prefer Apple’s VNRecognizeObjectsRequest (iOS 17+), enable the Swift flag and rebuild:
+  - Xcode → Target → Build Settings → Other Swift Flags → add `-D USE_VN_OBJECTS` for Debug.
+  - If your SDK doesn’t expose the symbol, keep the flag off; the app auto‑falls back to saliency.
+
 Xcode way
 - Open `RealityBadge.xcodeproj` → select target `RealityBadge` → Signing & Capabilities:
   - Team: your Apple ID
   - Enable “Automatically manage signing”
   - Bundle Identifier: set to `com.yourcompany.realitybadges`
 - Choose your iPhone in the run destination and press ⌘R.
-
