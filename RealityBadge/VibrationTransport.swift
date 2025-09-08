@@ -37,7 +37,7 @@ final class RBBLEVibrationTransport: NSObject, RBVibrationTransport {
         // 协议示例：2字节强度(0-100)、2字节时长ms（小端）
         let i = UInt16(max(0, min(100, Int(intensity * 100))))
         let ms = UInt16(max(0, min(10000, Int(duration * 1000))))
-        var payload: [UInt8] = [UInt8(i & 0xFF), UInt8(i >> 8), UInt8(ms & 0xFF), UInt8(ms >> 8)]
+        let payload: [UInt8] = [UInt8(i & 0xFF), UInt8(i >> 8), UInt8(ms & 0xFF), UInt8(ms >> 8)]
         let data = Data(payload)
         p.writeValue(data, for: c, type: .withResponse)
     }

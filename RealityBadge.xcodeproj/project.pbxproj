@@ -282,7 +282,7 @@
 					"@executable_path/Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.RealityBadge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wujiajun.RealityBadge231;
 				PRODUCT_NAME = RealityBadge;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -338,7 +338,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.RealityBadge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wujiajun.RealityBadge231;
 				PRODUCT_NAME = RealityBadge;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;

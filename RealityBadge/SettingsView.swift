@@ -81,7 +81,7 @@ struct SettingsView: View {
                 Section("关于") {
                     HStack { Text("版本"); Spacer(); Text("1.0").foregroundStyle(.secondary) }
                     Link("隐私政策", destination: URL(string: "https://example.com/privacy")!)
-                    Link("鸣谢与开源", destination: URL(string: "https://github.com/wujiajunhahah/RealityBadge")!)
+                    Link("作者介绍", destination: URL(string: "https://bonjour.bio/gaazone")!)
                 }
             }
             .navigationTitle("设置")

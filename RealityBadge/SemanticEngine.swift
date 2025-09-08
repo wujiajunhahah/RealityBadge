@@ -85,7 +85,7 @@ final class SemanticEngine {
                   let top = results.first else { return }
             self?.lastLabel = top.identifier
             // 将顶层置信度作为物体存在度的上界之一
-            var r = SemanticScores(objectConfidence: CGFloat(top.confidence), handObjectIoU: 0, textImageSimilarity: 0)
+            let r = SemanticScores(objectConfidence: CGFloat(top.confidence), handObjectIoU: 0, textImageSimilarity: 0)
             self?.latestSemanticScores = r
         })
     }
