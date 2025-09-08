@@ -62,7 +62,7 @@ struct HomeView: View {
             }
             Spacer()
             VStack(spacing: 4) {
-                Text("Reality Badges")
+                Text(RBStrings.t(.appTitle))
                     .font(.system(.largeTitle, design: .rounded).weight(.bold))
                 Text(dateString(.now))
                     .font(.system(.callout, design: .rounded))
@@ -76,14 +76,14 @@ struct HomeView: View {
     private var badgesPreview: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Badge Library")
+                Text(RBStrings.t(.badgeLibrary))
                     .font(.system(.title3, design: .rounded).weight(.semibold))
                     .foregroundStyle(.black.opacity(0.9))
                 Spacer()
                 NavigationLink {
                     BadgeWallView()
                 } label: {
-                    Label("View All", systemImage: "chevron.right")
+                    Label(RBStrings.t(.viewAll), systemImage: "chevron.right")
                         .labelStyle(.titleAndIcon)
                         .font(.system(.footnote, design: .rounded))
                         .foregroundStyle(.black.opacity(0.6))
@@ -220,7 +220,7 @@ struct HomeView: View {
                     Image(systemName: "camera.aperture")
                         .font(.system(size: 20, weight: .semibold))
                         .symbolRenderingMode(.hierarchical)
-                    Text("Start Exploring")
+                    Text(RBStrings.t(.startExploring))
                         .font(.system(.title3, design: .rounded).weight(.bold))
                 }
                 .foregroundStyle(.white)

@@ -179,16 +179,24 @@ struct Badge3DView: View {
     
     private var badgeInfoLayer: some View {
         VStack(spacing: badgeSize * 0.04) {
-            // 徽章图标
+            // 徽章图标（若已有主体裁剪，则使用主体缩略图代替占位符）
             ZStack {
                 Circle()
                     .fill(.ultraThinMaterial)
                     .frame(width: badgeSize * 0.3, height: badgeSize * 0.3)
-                
-                Image(systemName: badge.symbol)
-                    .font(.system(size: badgeSize * 0.15, weight: .bold))
-                    .foregroundStyle(.white)
-                    .symbolRenderingMode(.hierarchical)
+                if let subject = subjectCutout {
+                    Image(uiImage: subject)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: badgeSize * 0.28, height: badgeSize * 0.28)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                } else {
+                    Image(systemName: badge.symbol)
+                        .font(.system(size: badgeSize * 0.15, weight: .bold))
+                        .foregroundStyle(.white)
+                        .symbolRenderingMode(.hierarchical)
+                }
             }
             .shadow(color: .white.opacity(0.5), radius: 10)
             

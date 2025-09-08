@@ -11,6 +11,7 @@ struct SettingsView: View {
     @AppStorage("rb.enableParallax") private var enableParallax: Bool = true
     @AppStorage("rb.icloud") private var iCloudSync: Bool = true
     @AppStorage("rb.validation.mode") private var validationModeRaw: String = RBValidationMode.standard.rawValue
+    @AppStorage("rb.language") private var languageRaw: String = AppLanguage.system.rawValue
     private var pushDate: Binding<Date> {
         .init(get: { Date(timeIntervalSince1970: pushTime) },
               set: { pushTime = $0.timeIntervalSince1970 })
@@ -50,6 +51,13 @@ struct SettingsView: View {
                         ForEach(RBValidationMode.allCases) { m in
                             Text(m.rawValue).tag(m.rawValue)
                         }
+                    }
+                }
+                Section("语言 / Language") {
+                    Picker("Language", selection: $languageRaw) {
+                        Text("System / 系统").tag(AppLanguage.system.rawValue)
+                        Text("中文").tag(AppLanguage.zhHans.rawValue)
+                        Text("English").tag(AppLanguage.en.rawValue)
                     }
                 }
                 Section("账号与数据") {

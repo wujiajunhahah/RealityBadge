@@ -213,17 +213,18 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
             let depthImage = Self.depthDataToUIImage(depthData)
             DispatchQueue.main.async { self.capturedDepthMap = depthImage }
         }
-        // 优先：人像蒙版；否则：前景实例分割（iOS17+）；再否则：显著性图近似蒙版
+        // 优先：人像蒙版；否则：对象识别+显著性融合的主体蒙版；再否则：纯显著性
         if #available(iOS 13.0, *), let matte = photo.portraitEffectsMatte {
             if let ui = Self.pixelBufferToUIImage(matte.mattingImage) {
                 DispatchQueue.main.async { self.capturedSubjectMask = ui }
             }
         } else {
             let src = image
+            let target = self.currentScores?.semanticLabel
             DispatchQueue.global(qos: .userInitiated).async {
-                // 统一使用显著性图近似蒙版，避免对 iOS17+ 专有类型的编译依赖
-                let mask = Self.generateSaliencyMask(image: src)
-                if let m = mask {
+                let refined = VisionUtils.generateObjectMask(from: src, targetLabel: target)
+                    ?? Self.generateSaliencyMask(image: src)
+                if let m = refined {
                     DispatchQueue.main.async { self.capturedSubjectMask = m }
                 }
             }
@@ -404,7 +405,7 @@ struct CaptureView: View {
                 semanticLabelView
             }
             
-            Text(camera.isAuthorized ? "Align object and hold steady" : "Camera permission required")
+            Text(camera.isAuthorized ? RBStrings.t(.alignAndHold) : RBStrings.t(.cameraPermissionRequired))
                 .font(.system(.headline, design: .rounded))
                 .foregroundStyle(.white.opacity(0.95))
             
@@ -418,7 +419,7 @@ struct CaptureView: View {
         HStack {
             Image(systemName: "sparkles")
                 .font(.system(size: 14, weight: .medium))
-            Text("Detected: \(semanticLabel)")
+            Text("\(RBStrings.t(.detected)): \(semanticLabel)")
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
         }
         .foregroundStyle(.white)

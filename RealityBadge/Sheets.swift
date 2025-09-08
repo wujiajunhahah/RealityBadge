@@ -22,7 +22,7 @@ struct ChallengeSheet: View {
                 .font(.system(size: 40, weight: .semibold))
                 .padding(8)
             Button(action: onAccept) {
-                Text("Create Now")
+                Text(RBStrings.t(.createNow))
                     .font(.system(.headline, design: .rounded).weight(.bold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -135,10 +135,10 @@ struct BadgeResultSheet: View {
         VStack(spacing: 12) {
             Capsule().fill(Color.secondary.opacity(0.3)).frame(width: 44, height: 5).padding(.top, 6)
             // Segmented control
-            Picker("Preview Mode", selection: $mode) {
-                Text("3D Card").tag(PreviewMode.card3D)
-                Text("AR").tag(PreviewMode.ar)
-                Text("Immersive").tag(PreviewMode.immersive)
+            Picker(RBStrings.t(.previewMode), selection: $mode) {
+                Text(RBStrings.t(.card3D)).tag(PreviewMode.card3D)
+                Text(RBStrings.t(.ar)).tag(PreviewMode.ar)
+                Text(RBStrings.t(.immersive)).tag(PreviewMode.immersive)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, 16)
@@ -180,7 +180,7 @@ struct BadgeResultSheet: View {
                     saved = true
                     RBHaptics.success()
                 } label: {
-                    Label(saved ? "Saved" : "Save to Library", systemImage: saved ? "checkmark.circle" : "square.and.arrow.down")
+                    Label(saved ? "Saved" : RBStrings.t(.saveToLibrary), systemImage: saved ? "checkmark.circle" : "square.and.arrow.down")
                         .font(.system(.headline, design: .rounded).weight(.bold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
@@ -197,7 +197,7 @@ struct BadgeResultSheet: View {
                         state.showCapture = true
                     }
                 } label: {
-                    Label("Continue", systemImage: "camera")
+                    Label(RBStrings.t(.continue), systemImage: "camera")
                         .font(.system(.headline, design: .rounded).weight(.bold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)

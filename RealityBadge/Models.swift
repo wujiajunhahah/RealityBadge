@@ -77,9 +77,14 @@ struct RBSettings {
     @AppStorage("rb.enableParallax") var enableParallax: Bool = true
     @AppStorage("rb.push.freq") var pushFreq: Int = 1
     @AppStorage("rb.validation.mode") var validationModeRaw: String = RBValidationMode.standard.rawValue
+    @AppStorage("rb.language") var languageRaw: String = AppLanguage.system.rawValue
     var validationMode: RBValidationMode {
         get { RBValidationMode(rawValue: validationModeRaw) ?? .standard }
         set { validationModeRaw = newValue.rawValue }
+    }
+    var language: AppLanguage {
+        get { AppLanguage(rawValue: languageRaw) ?? .system }
+        set { languageRaw = newValue.rawValue }
     }
 }
 
