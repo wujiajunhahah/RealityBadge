@@ -8,6 +8,7 @@ final class HapticEngine {
     
     private var engine: CHHapticEngine?
     private var supportsHaptics: Bool = false
+    private var lastDynamicShakeTime: TimeInterval = 0
     
     private init() {
         setupHapticEngine()
@@ -288,5 +289,32 @@ extension HapticEngine {
     /// 通知反馈
     static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
         UINotificationFeedbackGenerator().notificationOccurred(type)
+    }
+
+    // 基于“摇晃强度”的动态振动（频率&强度）
+    func dynamicShake(intensity: Float) {
+        guard supportsHaptics else {
+            // 退化为系统轻触（按强度调整）
+            let style: UIImpactFeedbackGenerator.FeedbackStyle = intensity > 0.6 ? .heavy : (intensity > 0.3 ? .medium : .light)
+            UIImpactFeedbackGenerator(style: style).impactOccurred(intensity: CGFloat(max(0.2, min(1.0, intensity))))
+            return
+        }
+        // 频率与强度关联：6Hz(轻) ~ 50Hz(强)
+        let clampedI = max(0.01, min(1.0, intensity))
+        let rateHz = 6.0 + 44.0 * Double(clampedI)
+        let minInterval = 1.0 / rateHz
+        let now = CACurrentMediaTime()
+        if now - lastDynamicShakeTime < minInterval { return }
+        lastDynamicShakeTime = now
+
+        let clamped = max(0.05, min(1.0, intensity))
+        let sharp = CHHapticEventParameter(parameterID: .hapticSharpness, value: clamped * 0.9 + 0.1)
+        let inten = CHHapticEventParameter(parameterID: .hapticIntensity, value: clamped)
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [sharp, inten], relativeTime: 0)
+        do {
+            let pattern = try CHHapticPattern(events: [event], parameters: [])
+            let player = try engine?.makePlayer(with: pattern)
+            try player?.start(atTime: 0)
+        } catch { }
     }
 }

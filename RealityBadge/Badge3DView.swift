@@ -11,6 +11,7 @@ struct Badge3DView: View {
     @StateObject private var motionManager = MotionManager()
     @State private var dragOffset: CGSize = .zero
     @State private var accumulatedOffset: CGSize = .zero
+    @State private var subjectCutout: UIImage?
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
@@ -45,8 +46,17 @@ struct Badge3DView: View {
             }
         }
         .background(Color.black.opacity(0.9))
-        .onAppear { motionManager.start() }
+        .onAppear { 
+            motionManager.start()
+            updateCutout()
+        }
         .onDisappear { motionManager.stop() }
+        .onChange(of: motionManager.roll) { _, _ in
+            let inten = min(1.0, max(0, abs(motionManager.roll) + abs(motionManager.pitch)) / 1.5)
+            HapticEngine.shared.dynamicShake(intensity: Float(inten))
+        }
+        .onChange(of: subjectMask) { _, _ in updateCutout() }
+        .onChange(of: capturedImage) { _, _ in updateCutout() }
     }
     
     private var backgroundLayer: some View {
@@ -103,9 +113,9 @@ struct Badge3DView: View {
                     .opacity(0.7)
             }
             
-            // 主体层 - 裁剪出的主体
-            if let mask = subjectMask {
-                Image(uiImage: mask)
+            // 主体层 - 使用蒙版从原图裁剪出的主体
+            if let subject = subjectCutout {
+                Image(uiImage: subject)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: badgeSize * 0.8, height: badgeSize * 0.8)
@@ -226,6 +236,16 @@ class MotionManager: ObservableObject {
     
     func stop() {
         motionManager.stopDeviceMotionUpdates()
+    }
+}
+
+private extension Badge3DView {
+    func updateCutout() {
+        guard let img = capturedImage, let m = subjectMask else {
+            subjectCutout = nil
+            return
+        }
+        subjectCutout = RBMakeSubjectCutout(image: img, mask: m)
     }
 }
 

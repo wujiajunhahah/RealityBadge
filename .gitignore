@@ -124,3 +124,6 @@ node_modules/
 
 # ExtraordinaryApp folder (React Native project created accidentally)
 ExtraordinaryApp/
+
+# Logs
+*.log

@@ -97,9 +97,18 @@ struct HomeView: View {
                 HStack(spacing: 14) {
                     ForEach(state.recentBadges) { b in
                         BadgeCard(badge: b)
-                            .onTapGesture { 
+                            .onTapGesture {
                                 HapticEngine.selection()
-                                state.sheet = .badgePreview(b) 
+                                // 若该徽章已保存资源，则预加载到全局状态供预览使用
+                                if let path = b.imagePath, let img = UIImage(contentsOfFile: path) {
+                                    state.lastCapturedImage = img
+                                } else {
+                                    state.lastCapturedImage = nil
+                                }
+                                if let m = b.maskPath { state.lastSubjectMask = UIImage(contentsOfFile: m) } else { state.lastSubjectMask = nil }
+                                if let d = b.depthPath { state.lastDepthMap = UIImage(contentsOfFile: d) } else { state.lastDepthMap = nil }
+                                // 进入包含 3D/AR/沉浸 的高级预览
+                                state.sheet = .badge3DPreview(b)
                             }
                     }
                 }
@@ -239,10 +248,27 @@ struct BadgeCard: View {
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
-                Circle().fill(.ultraThinMaterial)
-                    .frame(width: 72, height: 72)
-                Image(systemName: badge.symbol)
-                    .font(.system(size: 28, weight: .semibold))
+                RoundedRectangle(cornerRadius: 12).fill(.ultraThinMaterial)
+                    .frame(width: 90, height: 66)
+                if let p = badge.imagePath, let img = UIImage(contentsOfFile: p) {
+                    if let mp = badge.maskPath, let m = UIImage(contentsOfFile: mp), let cut = RBMakeSubjectCutout(image: img, mask: m) {
+                        Image(uiImage: cut)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 90, height: 66)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 90, height: 66)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                } else {
+                    Image(systemName: badge.symbol)
+                        .font(.system(size: 28, weight: .semibold))
+                }
             }
             Text(badge.title)
                 .font(.system(.footnote, design: .rounded).weight(.semibold))

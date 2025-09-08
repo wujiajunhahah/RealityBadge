@@ -28,12 +28,37 @@ enum RBMode: String, CaseIterable, Identifiable {
 }
 
 struct Badge: Identifiable, Hashable {
-    let id = UUID()
+    let id: UUID
     let title: String
     let date: Date
     let style: String   // "embossed" / "film" / "pixel"
     let done: Bool
     let symbol: String  // SF Symbol placeholder
+    // 可选：与该徽章关联的资源（磁盘路径）
+    let imagePath: String?
+    let maskPath: String?
+    let depthPath: String?
+
+    init(
+        title: String,
+        date: Date,
+        style: String,
+        done: Bool,
+        symbol: String,
+        imagePath: String? = nil,
+        maskPath: String? = nil,
+        depthPath: String? = nil
+    ) {
+        self.id = UUID()
+        self.title = title
+        self.date = date
+        self.style = style
+        self.done = done
+        self.symbol = symbol
+        self.imagePath = imagePath
+        self.maskPath = maskPath
+        self.depthPath = depthPath
+    }
 }
 
 // MARK: - Settings & Haptics
@@ -60,6 +85,7 @@ final class RBMotion: ObservableObject {
     private let mgr = CMMotionManager()
     @Published var roll: Double = 0
     @Published var pitch: Double = 0
+    @Published var shake: Double = 0
     func start() {
         guard mgr.isDeviceMotionAvailable else { return }
         mgr.deviceMotionUpdateInterval = 1.0/60.0
@@ -67,6 +93,15 @@ final class RBMotion: ObservableObject {
             guard let d = data else { return }
             self?.roll = d.attitude.roll
             self?.pitch = d.attitude.pitch
+            // 基于 userAcceleration 估算“摇晃强度” 0...1（带低通）
+            let ax = d.userAcceleration.x
+            let ay = d.userAcceleration.y
+            let az = d.userAcceleration.z
+            let magnitude = sqrt(ax*ax + ay*ay + az*az) // 约 0..3g
+            let normalized = min(1.0, magnitude / 1.5)
+            // 简单低通滤波
+            let alpha = 0.2
+            self?.shake = alpha * normalized + (1 - alpha) * (self?.shake ?? 0)
         }
     }
     func stop() { mgr.stopDeviceMotionUpdates() }

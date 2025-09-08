@@ -149,11 +149,11 @@ struct BadgeResultSheet: View {
                     Badge3DView(badge: badge, capturedImage: capturedImage, subjectMask: subjectMask, depthMap: depthMap)
                         .frame(height: 420)
                 case .ar:
-                    ARBadgeView(badge: badge)
+                    ARBadgeView(badge: badge, image: capturedImage)
                         .frame(height: 420)
                         .background(Color.black.opacity(0.9))
                 case .immersive:
-                    Badge3DView(badge: badge, capturedImage: capturedImage, subjectMask: subjectMask, depthMap: depthMap)
+                    ImmersivePhotoView(image: capturedImage)
                         .frame(height: 560)
                 }
             }
@@ -162,11 +162,22 @@ struct BadgeResultSheet: View {
             
             HStack(spacing: 10) {
                 Button {
-                    if !saved {
-                        state.recentBadges.insert(badge, at: 0)
-                        saved = true
-                        RBHaptics.success()
-                    }
+                    guard !saved else { return }
+                    // 将资源落盘，并构造带路径的Badge
+                    let paths = saveCurrentAssets(badge: badge, image: capturedImage, mask: subjectMask, depth: depthMap)
+                    let savedBadge = Badge(
+                        title: badge.title,
+                        date: badge.date,
+                        style: badge.style,
+                        done: true,
+                        symbol: badge.symbol,
+                        imagePath: paths.image,
+                        maskPath: paths.mask,
+                        depthPath: paths.depth
+                    )
+                    state.recentBadges.insert(savedBadge, at: 0)
+                    saved = true
+                    RBHaptics.success()
                 } label: {
                     Label(saved ? "已保存" : "保存到库", systemImage: saved ? "checkmark.circle" : "square.and.arrow.down")
                         .font(.system(.headline, design: .rounded).weight(.bold))
@@ -203,23 +214,53 @@ struct BadgeResultSheet: View {
 #if canImport(RealityKit) && canImport(ARKit)
 struct ARBadgeView: UIViewRepresentable {
     let badge: Badge
+    var image: UIImage?
     func makeUIView(context: Context) -> ARView {
         let view = ARView(frame: .zero)
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = [.horizontal]
         view.session.run(config)
-        // 简易放置一个半透明的卡片
-        let anchor = AnchorEntity(plane: .horizontal)
-        let mesh = MeshResource.generateBox(size: 0.12, cornerRadius: 0.01)
-        var mat = SimpleMaterial()
-        mat.color = .init(tint: .white.withAlphaComponent(0.8), texture: nil)
-        let entity = ModelEntity(mesh: mesh, materials: [mat])
-        entity.position = [0, 0, 0]
-        anchor.addChild(entity)
-        view.scene.addAnchor(anchor)
+        // 轻点屏幕放置“卡片”实体（使用照片贴图）
+        let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        view.addGestureRecognizer(tap)
+        context.coordinator.view = view
+        context.coordinator.image = image
+        
         return view
     }
     func updateUIView(_ uiView: ARView, context: Context) {}
+    func makeCoordinator() -> Coordinator { Coordinator() }
+    class Coordinator: NSObject {
+        weak var view: ARView?
+        var image: UIImage?
+        @objc func handleTap(_ gr: UITapGestureRecognizer) {
+            guard let view = view else { return }
+            let loc = gr.location(in: view)
+            if let result = view.raycast(from: loc, allowing: .estimatedPlane, alignment: .horizontal).first {
+                let anchor = AnchorEntity(world: result.worldTransform)
+                // 计算平面比例
+                let w: Float = 0.18
+                let h: Float = 0.18
+                let mesh = MeshResource.generatePlane(width: w, height: h, cornerRadius: 0.01)
+                var mat: Material
+                if let img = image, let tex = try? TextureResource.generate(from: img.cgImage!, options: .init(semantic: .color)) {
+                    var unlit = UnlitMaterial()
+                    unlit.color = .init(texture: .init(tex))
+                    mat = unlit
+                } else {
+                    var simple = SimpleMaterial()
+                    simple.color = .init(tint: .white.withAlphaComponent(0.9), texture: nil)
+                    mat = simple
+                }
+                let card = ModelEntity(mesh: mesh, materials: [mat])
+                // 轻微弹跳动画
+                card.transform.translation = [0, 0.02, 0]
+                anchor.addChild(card)
+                view.scene.addAnchor(anchor)
+                card.move(to: Transform(identity), relativeTo: anchor, duration: 0.5, timingFunction: .easeOut)
+            }
+        }
+    }
 }
 #else
 struct ARBadgeView: View {
@@ -227,3 +268,67 @@ struct ARBadgeView: View {
     var body: some View { Text("AR 不可用").frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.black) }
 }
 #endif
+
+// MARK: - 沉浸式照片（全屏 + 陀螺仪视差）
+struct ImmersivePhotoView: View {
+    let image: UIImage?
+    @StateObject private var motion = RBMotion.shared
+    
+    private func offset(for size: CGSize) -> CGSize {
+        // 将 roll/pitch（-pi..pi）映射为最多 6% 视差位移
+        let maxX = size.width * 0.06
+        let maxY = size.height * 0.06
+        let ox = CGFloat(max(-1, min(1, motion.roll))) * maxX
+        let oy = CGFloat(max(-1, min(1, motion.pitch))) * maxY
+        return CGSize(width: -ox, height: -oy) // 反向位移制造景深感
+    }
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color.black.ignoresSafeArea()
+                if let ui = image {
+                    // 轻微放大避免视差暴露边缘
+                    Image(uiImage: ui)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .scaleEffect(1.12)
+                        .offset(offset(for: geo.size))
+                        .clipped()
+                        .ignoresSafeArea()
+                } else {
+                    LinearGradient(colors: [.black, .gray.opacity(0.6)], startPoint: .top, endPoint: .bottom)
+                        .ignoresSafeArea()
+                }
+                
+                // 轻微的前景高光，模拟“液态玻璃”质感
+                if #available(iOS 16.0, *) {
+                    LiquidGlassView(opacity: 0.12, blur: 8)
+                        .allowsHitTesting(false)
+                        .ignoresSafeArea()
+                }
+            }
+            .onAppear {
+                motion.start()
+                HapticEngine.shared.liquidTransition()
+            }
+            .onDisappear { motion.stop() }
+        }
+    }
+}
+
+// 保存图片到文档目录
+private func saveCurrentAssets(badge: Badge, image: UIImage?, mask: UIImage?, depth: UIImage?) -> (image: String?, mask: String?, depth: String?) {
+    func save(_ img: UIImage?, name: String) -> String? {
+        guard let data = img?.pngData() else { return nil }
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
+        do { try data.write(to: url); return url.path } catch { return nil }
+    }
+    let base = badge.id.uuidString
+    return (
+        save(image, name: "\(base)_img.png"),
+        save(mask, name: "\(base)_mask.png"),
+        save(depth, name: "\(base)_depth.png")
+    )
+}

@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import Vision
 
 // 用专用 UIView 承载 AVPreviewLayer，更稳
 final class PreviewView: UIView {
@@ -114,6 +115,17 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         // 添加照片输出
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
+            // 启用深度与语义分割（若支持）
+            if photoOutput.isDepthDataDeliverySupported {
+                photoOutput.isDepthDataDeliveryEnabled = true
+            }
+            if #available(iOS 13.0, *), photoOutput.isPortraitEffectsMatteDeliverySupported {
+                photoOutput.isPortraitEffectsMatteDeliveryEnabled = true
+            }
+            if #available(iOS 13.0, *), photoOutput.isSemanticSegmentationMatteDeliverySupported {
+                photoOutput.isSemanticSegmentationMatteDeliveryEnabled = true
+                photoOutput.enabledSemanticSegmentationMatteTypes = photoOutput.availableSemanticSegmentationMatteTypes
+            }
         }
         
         session.commitConfiguration()
@@ -158,6 +170,15 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
     // 捕获照片
     func capturePhoto() {
         let settings = AVCapturePhotoSettings()
+        if photoOutput.isDepthDataDeliveryEnabled {
+            settings.isDepthDataDeliveryEnabled = true
+        }
+        if #available(iOS 13.0, *), photoOutput.isPortraitEffectsMatteDeliveryEnabled {
+            settings.isPortraitEffectsMatteDeliveryEnabled = true
+        }
+        if #available(iOS 13.0, *), photoOutput.isSemanticSegmentationMatteDeliveryEnabled {
+            settings.embedsSemanticSegmentationMattesInPhoto = true
+        }
         photoOutput.capturePhoto(with: settings, delegate: self)
     }
     
@@ -169,6 +190,103 @@ final class CameraController: NSObject, ObservableObject, AVCaptureVideoDataOutp
         
         DispatchQueue.main.async {
             self.capturedFrame = image
+        }
+
+        // 处理深度与主体蒙版
+        if let depthData = photo.depthData {
+            let depthImage = Self.depthDataToUIImage(depthData)
+            DispatchQueue.main.async { self.capturedDepthMap = depthImage }
+        }
+        // 优先：人像蒙版；否则：前景实例分割（iOS17+）；再否则：显著性图近似蒙版
+        if #available(iOS 13.0, *), let matte = photo.portraitEffectsMatte {
+            if let ui = Self.pixelBufferToUIImage(matte.mattingImage) {
+                DispatchQueue.main.async { self.capturedSubjectMask = ui }
+            }
+        } else {
+            let src = image
+            DispatchQueue.global(qos: .userInitiated).async {
+                var mask: UIImage? = nil
+                if #available(iOS 17.0, *) {
+                    mask = Self.generateForegroundMaskVN(image: src)
+                }
+                if mask == nil {
+                    mask = Self.generateSaliencyMask(image: src)
+                }
+                if let m = mask {
+                    DispatchQueue.main.async { self.capturedSubjectMask = m }
+                }
+            }
+        }
+    }
+
+    // 将生成的蒙版与深度暂存在控制器中供外部读取
+    @Published var capturedSubjectMask: UIImage?
+    @Published var capturedDepthMap: UIImage?
+
+    private static func pixelBufferToUIImage(_ pb: CVPixelBuffer) -> UIImage? {
+        let ciImage = CIImage(cvPixelBuffer: pb)
+        let context = CIContext(options: nil)
+        if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+            return UIImage(cgImage: cgImage)
+        }
+        return nil
+    }
+    private static func depthDataToUIImage(_ depthData: AVDepthData) -> UIImage? {
+        let converted = depthData.converting(toDepthDataType: kCVPixelFormatType_DisparityFloat32)
+        let pb = converted.depthDataMap
+        CVPixelBufferLockBaseAddress(pb, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(pb, .readOnly) }
+        let width = CVPixelBufferGetWidth(pb)
+        let height = CVPixelBufferGetHeight(pb)
+        let ci = CIImage(cvPixelBuffer: pb)
+        let normalized = ci.applyingFilter("CIColorControls", parameters: [kCIInputContrastKey: 1.0])
+            .applyingFilter("CIGammaAdjust", parameters: ["inputPower": 0.5])
+        let context = CIContext()
+        if let cg = context.createCGImage(normalized, from: CGRect(x: 0, y: 0, width: width, height: height)) {
+            return UIImage(cgImage: cg)
+        }
+        return nil
+    }
+}
+
+// MARK: - Subject Mask Generation (Vision)
+extension CameraController {
+    @available(iOS 17.0, *)
+    static func generateForegroundMaskVN(image: UIImage) -> UIImage? {
+        guard let cg = image.cgImage else { return nil }
+        let req = VNGenerateForegroundInstanceMaskRequest()
+        let handler = VNImageRequestHandler(cgImage: cg, orientation: .up, options: [:])
+        do {
+            try handler.perform([req])
+            guard let obs = req.results?.first as? VNForegroundInstanceMaskObservation else { return nil }
+            // 合成所有实例的掩码图
+            let maskedCG = try obs.generateMaskedImage(ofInstances: obs.allInstances, from: cg)
+            return UIImage(cgImage: maskedCG, scale: image.scale, orientation: image.imageOrientation)
+        } catch {
+            return nil
+        }
+    }
+
+    static func generateSaliencyMask(image: UIImage) -> UIImage? {
+        guard let cg = image.cgImage else { return nil }
+        let req = VNGenerateAttentionBasedSaliencyImageRequest()
+        let handler = VNImageRequestHandler(cgImage: cg, orientation: .up, options: [:])
+        do {
+            try handler.perform([req])
+            guard let sal = req.results?.first as? VNSaliencyImageObservation,
+                  let pb = sal.pixelBuffer else { return nil }
+            // 提升对比作为近似蒙版
+            let ci = CIImage(cvPixelBuffer: pb)
+                .applyingFilter("CIColorControls", parameters: [
+                    kCIInputSaturationKey: 0,
+                    kCIInputContrastKey: 2.5,
+                    kCIInputBrightnessKey: 0
+                ])
+            let ctx = CIContext()
+            guard let out = ctx.createCGImage(ci, from: ci.extent) else { return nil }
+            return UIImage(cgImage: out, scale: image.scale, orientation: image.imageOrientation)
+        } catch {
+            return nil
         }
     }
 }
@@ -453,11 +571,11 @@ struct CaptureView: View {
         
         // 等待照片捕获完成
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            // 保存捕获的数据到state中
+            // 保存捕获的数据到state中（优先使用拍照回调生成的蒙版/深度）
             if let capturedImage = self.camera.capturedFrame {
                 self.state.lastCapturedImage = capturedImage
-                self.state.lastSubjectMask = self.subjectMask
-                self.state.lastDepthMap = self.depthMap
+                self.state.lastSubjectMask = self.camera.capturedSubjectMask ?? self.subjectMask
+                self.state.lastDepthMap = self.camera.capturedDepthMap ?? self.depthMap
             }
             // 停止相机，避免后台继续采集
             self.camera.stop()

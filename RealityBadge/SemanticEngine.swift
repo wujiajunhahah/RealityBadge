@@ -113,8 +113,8 @@ final class SemanticEngine {
             scores.handObjectIoU = calculateHandObjectInteraction(handPos: handPos)
         }
         
-        // 合并最近一次Vision处理的异步结果（标签/蒙版/深度等）
-        if let cached = visionQueue.sync(execute: { latestSemanticScores }) {
+        // 合并最近一次Vision处理的异步结果（标签/蒙版/深度等），避免阻塞捕获队列
+        if let cached = self.latestSemanticScores {
             scores.subjectMask = cached.subjectMask
             scores.depthMap = cached.depthMap
             scores.semanticLabel = cached.semanticLabel
