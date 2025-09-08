@@ -21,6 +21,12 @@
 		CB3D50B92E6D6A7600E6AD97 /* Badge3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B12E6D6A7600E6AD97 /* Badge3DView.swift */; };
 		CB3D50BA2E6D6A7600E6AD97 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B22E6D6A7600E6AD97 /* ButtonStyles.swift */; };
 		CB3D50BB2E6D6A7600E6AD97 /* LiquidGlassEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B42E6D6A7600E6AD97 /* LiquidGlassEffect.swift */; };
+		RB0000010000000000000001 /* BackendServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000002 /* BackendServices.swift */; };
+		RB0000010000000000000003 /* DocumentImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000004 /* DocumentImport.swift */; };
+		RB0000010000000000000005 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000006 /* AppDelegate.swift */; };
+		RB0000010000000000000007 /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000008 /* ImageUtils.swift */; };
+		RB0000010000000000000009 /* feature_flags.json in Resources */ = {isa = PBXBuildFile; fileRef = RB000001000000000000000A /* feature_flags.json */; };
+		RB000001000000000000000B /* VibrationTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB000001000000000000000C /* VibrationTransport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +46,12 @@
 		CB3D50B32E6D6A7600E6AD97 /* HapticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticEngine.swift; sourceTree = "<group>"; };
 		CB3D50B42E6D6A7600E6AD97 /* LiquidGlassEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassEffect.swift; sourceTree = "<group>"; };
 		CB3D50B52E6D6A7600E6AD97 /* SemanticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemanticEngine.swift; sourceTree = "<group>"; };
+		RB0000010000000000000002 /* BackendServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendServices.swift; sourceTree = "<group>"; };
+		RB0000010000000000000004 /* DocumentImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentImport.swift; sourceTree = "<group>"; };
+		RB0000010000000000000006 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		RB0000010000000000000008 /* ImageUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
+		RB000001000000000000000A /* feature_flags.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feature_flags.json; sourceTree = "<group>"; };
+		RB000001000000000000000C /* VibrationTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibrationTransport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +84,11 @@
 		1AAPPSRC /* RealityBadge */ = {
 			isa = PBXGroup;
 			children = (
+				RB0000010000000000000006 /* AppDelegate.swift */,
+				RB0000010000000000000004 /* DocumentImport.swift */,
+				RB0000010000000000000002 /* BackendServices.swift */,
+				RB000001000000000000000C /* VibrationTransport.swift */,
+				RB0000010000000000000008 /* ImageUtils.swift */,
 				CB3D50B02E6D6A7600E6AD97 /* Animations.swift */,
 				CB3D50B12E6D6A7600E6AD97 /* Badge3DView.swift */,
 				CB3D50B22E6D6A7600E6AD97 /* ButtonStyles.swift */,
@@ -85,6 +102,7 @@
 				1AAPPF000000000100000005 /* Sheets.swift */,
 				1AAPPF000000000100000006 /* BadgeWallView.swift */,
 				1AAPPF000000000100000007 /* SettingsView.swift */,
+				RB000001000000000000000A /* feature_flags.json */,
 				1AAPPF000000000100000008 /* Assets.xcassets */,
 				1AAPPF000000000100000009 /* Info.plist */,
 			);
@@ -150,6 +168,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AAPP0000000000100000008 /* Assets.xcassets in Resources */,
+				RB0000010000000000000009 /* feature_flags.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +187,11 @@
 				CB3D50B92E6D6A7600E6AD97 /* Badge3DView.swift in Sources */,
 				CB3D50BA2E6D6A7600E6AD97 /* ButtonStyles.swift in Sources */,
 				CB3D50BB2E6D6A7600E6AD97 /* LiquidGlassEffect.swift in Sources */,
+				RB0000010000000000000007 /* ImageUtils.swift in Sources */,
+				RB0000010000000000000005 /* AppDelegate.swift in Sources */,
+				RB0000010000000000000003 /* DocumentImport.swift in Sources */,
+				RB0000010000000000000001 /* BackendServices.swift in Sources */,
+				RB000001000000000000000B /* VibrationTransport.swift in Sources */,
 				1AAPP0000000000100000003 /* HomeView.swift in Sources */,
 				1AAPP0000000000100000004 /* CaptureView.swift in Sources */,
 				1AAPP0000000000100000005 /* Sheets.swift in Sources */,

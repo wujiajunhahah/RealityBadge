@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -16,6 +17,7 @@ struct SettingsView: View {
     }
 
     @State private var exportFolderURL: URL? = nil
+    @State private var showImporter: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -60,6 +62,7 @@ struct SettingsView: View {
                             print("Export failed: \(error)")
                         }
                     }
+                    Button("导入徽章包 (.rbadge)") { showImporter = true }
                     if let url = exportFolderURL {
                         ShareLink(item: url) {
                             Label("分享导出文件夹", systemImage: "square.and.arrow.up")
@@ -78,6 +81,11 @@ struct SettingsView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("完成") { dismiss() }
                 }
+            }
+        }
+        .fileImporter(isPresented: $showImporter, allowedContentTypes: [.rbadge], allowsMultipleSelection: false) { result in
+            if case let .success(urls) = result, let url = urls.first {
+                RBBadgeImportHelper.importPackage(at: url, into: state)
             }
         }
     }

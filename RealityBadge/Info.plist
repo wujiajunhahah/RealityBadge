@@ -47,5 +47,48 @@
   <string>需要相机权限以进行实时取景与生成徽章。</string>
   <key>NSMotionUsageDescription</key>
   <string>需要访问陀螺仪以实现3D视差效果。</string>
+  <key>LSSupportsOpeningDocumentsInPlace</key>
+  <true/>
+  <key>UTExportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeIdentifier</key>
+      <string>com.realitybadge.package</string>
+      <key>UTTypeDescription</key>
+      <string>RealityBadge Package</string>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.apple.package</string>
+      </array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>rbadge</string>
+        </array>
+        <key>public.mime-type</key>
+        <array>
+          <string>application/vnd.realitybadge</string>
+        </array>
+      </dict>
+    </dict>
+  </array>
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>RealityBadge Package</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>com.realitybadge.package</string>
+      </array>
+      <key>LSHandlerRank</key>
+      <string>Default</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>LSTypeIsPackage</key>
+      <true/>
+    </dict>
+  </array>
 </dict>
 </plist>
