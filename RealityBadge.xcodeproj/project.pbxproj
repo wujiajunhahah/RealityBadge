@@ -33,6 +33,8 @@
 		RB0000010000000000000013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000014 /* PrivacyInfo.xcprivacy */; };
 		RB0000010000000000000015 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000016 /* Router.swift */; };
 		RB0000010000000000000017 /* ServicesAuthPurchase.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000018 /* ServicesAuthPurchase.swift */; };
+		RBLOC000000000000000001 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = RBLOCREF0000000000000001 /* Localization.swift */; };
+		RBVIS000000000000000001 /* VisionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = RBVISREF0000000000000001 /* VisionUtils.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +47,8 @@
 		1AAPPF000000000100000007 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1AAPPF000000000100000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AAPPF000000000100000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		RBLOCREF0000000000000001 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		RBVISREF0000000000000001 /* VisionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionUtils.swift; sourceTree = "<group>"; };
 		1AAPPF00000000010000000A /* RealityBadge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealityBadge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3D50B02E6D6A7600E6AD97 /* Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animations.swift; sourceTree = "<group>"; };
 		CB3D50B12E6D6A7600E6AD97 /* Badge3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge3DView.swift; sourceTree = "<group>"; };
@@ -123,6 +127,8 @@
 				RB000001000000000000000A /* feature_flags.json */,
 				1AAPPF000000000100000008 /* Assets.xcassets */,
 				1AAPPF000000000100000009 /* Info.plist */,
+				RBLOCREF0000000000000001 /* Localization.swift */,
+				RBVISREF0000000000000001 /* VisionUtils.swift */,
 			);
 			path = RealityBadge;
 			sourceTree = "<group>";
@@ -216,6 +222,8 @@
 				RB0000010000000000000011 /* Rendering.swift in Sources */,
 				RB0000010000000000000015 /* Router.swift in Sources */,
 				RB0000010000000000000017 /* ServicesAuthPurchase.swift in Sources */,
+				RBLOC000000000000000001 /* Localization.swift in Sources */,
+				RBVIS000000000000000001 /* VisionUtils.swift in Sources */,
 				1AAPP0000000000100000003 /* HomeView.swift in Sources */,
 				1AAPP0000000000100000004 /* CaptureView.swift in Sources */,
 				1AAPP0000000000100000005 /* Sheets.swift in Sources */,
