@@ -47,6 +47,7 @@ struct Badge: Identifiable, Hashable {
     let depthPath: String?
 
     init(
+        id: UUID = UUID(),
         title: String,
         date: Date,
         style: String,
@@ -58,7 +59,7 @@ struct Badge: Identifiable, Hashable {
         schemaVersion: Int = RBConstants.schemaVersion
     ) {
         self.schemaVersion = schemaVersion
-        self.id = UUID()
+        self.id = id
         self.title = title
         self.date = date
         self.style = style
@@ -243,6 +244,8 @@ struct RBNoopPushService: RBPushService {
 enum RBServices {
     static var backend: RBBackendService = RBNoopBackendService()
     static var push: RBPushService = RBNoopPushService()
+    static var auth: RBAuthService = RBNoopAuthService()
+    static var purchase: RBPurchaseService = RBNoopPurchaseService()
 }
 
 // MARK: - 资产打包格式（.rbadge）
@@ -327,6 +330,7 @@ enum RBPackage {
         let depthPath = copy(mf.assets.depth)
         let date = ISO8601DateFormatter().date(from: mf.dateISO8601) ?? .now
         return Badge(
+            id: id,
             title: mf.title,
             date: date,
             style: mf.style,

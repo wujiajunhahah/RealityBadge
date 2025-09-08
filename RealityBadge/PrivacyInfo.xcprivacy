@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "privacy": {
+    "tracking": {
+      "usesTracking": false
+    },
+    "dataCategories": []
+  }
+}

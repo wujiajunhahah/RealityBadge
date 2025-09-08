@@ -15,6 +15,7 @@ enum RBBadgeImportHelper {
             let badge = try RBPackage.import(from: url)
             DispatchQueue.main.async {
                 state.recentBadges.insert(badge, at: 0)
+                RBRepository.badges.save(badge)
             }
         } catch {
             print("Failed to import .rbadge: \(error)")
@@ -28,4 +29,3 @@ extension UTType {
         UTType(tag: "rbadge", tagClass: .filenameExtension, conformingTo: .package) ?? .package
     }
 }
-

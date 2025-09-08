@@ -5,6 +5,7 @@ import AudioToolbox
 /// 高级触觉引擎 - WWDC级别的触觉体验
 final class HapticEngine {
     static let shared = HapticEngine()
+    static var externalVibration: RBVibrationTransport? = nil
     
     private var engine: CHHapticEngine?
     private var supportsHaptics: Bool = false
@@ -316,5 +317,7 @@ extension HapticEngine {
             let player = try engine?.makePlayer(with: pattern)
             try player?.start(atTime: 0)
         } catch { }
+        // 同步外设振动（若有）
+        HapticEngine.externalVibration?.send(intensity: clamped, duration: 0.02)
     }
 }

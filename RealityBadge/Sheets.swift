@@ -176,6 +176,7 @@ struct BadgeResultSheet: View {
                         depthPath: paths.depth
                     )
                     state.recentBadges.insert(savedBadge, at: 0)
+                    RBRepository.badges.save(savedBadge)
                     saved = true
                     RBHaptics.success()
                 } label: {

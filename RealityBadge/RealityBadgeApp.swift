@@ -18,6 +18,14 @@ struct RealityBadgeApp: App {
                     RBDocumentOpener.shared.handler = { url in
                         RBBadgeImportHelper.importPackage(at: url, into: appState)
                     }
+                    RBDeepLinkOpener.shared.handler = { url in
+                        RBRouter.handle(url: url, state: appState)
+                    }
+                    // 加载本地已保存徽章（如有则覆盖默认示例）
+                    let existing = RBRepository.badges.loadAll()
+                    if !existing.isEmpty {
+                        appState.recentBadges = existing
+                    }
                 }
         }
     }
