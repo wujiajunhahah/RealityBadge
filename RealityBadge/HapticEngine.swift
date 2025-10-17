@@ -320,4 +320,102 @@ extension HapticEngine {
         // 同步外设振动（若有）
         HapticEngine.externalVibration?.send(intensity: clamped, duration: 0.02)
     }
+
+    // MARK: - 量子特效触觉反馈
+
+    /// 量子扫描阶段反馈
+    func quantumPhase(phase: Int) {
+        guard supportsHaptics else {
+            let style: UIImpactFeedbackGenerator.FeedbackStyle = phase == 3 ? .heavy : (phase == 2 ? .medium : .light)
+            UIImpactFeedbackGenerator(style: style).impactOccurred()
+            return
+        }
+
+        do {
+            let pattern = try createQuantumPhasePattern(phase: phase)
+            let player = try engine?.makePlayer(with: pattern)
+            try player?.start(atTime: 0)
+        } catch {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+    }
+
+    /// 量子完成庆祝
+    func quantumComplete() {
+        guard supportsHaptics else {
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+            }
+            return
+        }
+
+        do {
+            let pattern = try createQuantumCompletePattern()
+            let player = try engine?.makePlayer(with: pattern)
+            try player?.start(atTime: 0)
+        } catch {
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        }
+    }
+
+    private func createQuantumPhasePattern(phase: Int) throws -> CHHapticPattern {
+        let baseIntensity = Float(phase) * 0.3
+        let sharpness = Float(phase) * 0.2 + 0.3
+
+        let event = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness),
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: baseIntensity)
+            ],
+            relativeTime: 0
+        )
+
+        // 添加回波效果
+        let echoEvent = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness * 0.5),
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: baseIntensity * 0.3)
+            ],
+            relativeTime: 0.08
+        )
+
+        return try CHHapticPattern(events: [event, echoEvent], parameters: [])
+    }
+
+    private func createQuantumCompletePattern() throws -> CHHapticPattern {
+        var events: [CHHapticEvent] = []
+
+        // 量子能量累积
+        for i in 0..<8 {
+            let time = TimeInterval(i) * 0.06
+            let intensity = 0.2 + Float(i) * 0.1
+
+            let event = CHHapticEvent(
+                eventType: .hapticTransient,
+                parameters: [
+                    CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.3),
+                    CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
+                ],
+                relativeTime: time
+            )
+            events.append(event)
+        }
+
+        // 量子爆发
+        let burstEvent = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.8),
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0)
+            ],
+            relativeTime: 0.5,
+            duration: 0.2
+        )
+        events.append(burstEvent)
+
+        return try CHHapticPattern(events: events, parameters: [])
+    }
 }

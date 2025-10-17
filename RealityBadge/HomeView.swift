@@ -48,7 +48,7 @@ struct HomeView: View {
                 }
             }
             .navigationDestination(isPresented: $state.showCapture) {
-                CaptureView()
+                QuantumCaptureView()
             }
             .toolbar(.hidden, for: .navigationBar)
         }

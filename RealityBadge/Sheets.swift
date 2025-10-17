@@ -146,7 +146,7 @@ struct BadgeResultSheet: View {
             ZStack {
                 switch mode {
                 case .card3D:
-                    Badge3DView(badge: badge, capturedImage: capturedImage, subjectMask: subjectMask, depthMap: depthMap)
+                    QuantumBadge3DView(badge: badge, capturedImage: capturedImage, subjectMask: subjectMask, depthMap: depthMap)
                         .frame(height: 420)
                 case .ar:
                     ARBadgeView(badge: badge, image: capturedImage)
