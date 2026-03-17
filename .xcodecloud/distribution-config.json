@@ -1,0 +1,28 @@
+{
+  "distribution": {
+    "testFlight": {
+      "enabled": true,
+      "autoDistribute": true,
+      "groups": ["Internal Testers", "External Testers"],
+      "notifyTesters": true,
+      "changelog": "自动分发的测试版本",
+      "betaRequirements": {
+        "iosVersion": "17.0",
+        "devices": "universal"
+      }
+    },
+    "appStore": {
+      "enabled": false,
+      "autoSubmit": false,
+      "submission": {
+        "contentRightsContainsThirdPartyContent": false,
+        "exportCompliance": false,
+        "compliance": false
+      },
+      "version": {
+        "versionNumber": "1.0",
+        "buildNumber": "1"
+      }
+    }
+  }
+}

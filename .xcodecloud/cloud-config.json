@@ -1,0 +1,22 @@
+{
+  "xcodeCloud": {
+    "appName": "RealityBadge",
+    "bundleIdentifier": "com.wujiajun.RealityBadge",
+    "appleId": "6752278083",
+    "sku": "RealityBadgeiOSApp",
+    "api": {
+      "issuerId": "3d8a8ce3-ad11-4ead-9e6c-38eecfe55269",
+      "keyId": "8399F524UX",
+      "keyPath": "/Users/wujiajun/.appstoreconnect/private_keys/AuthKey_8399F524UX.p8"
+    },
+    "repository": {
+      "provider": "github",
+      "url": "https://github.com/wujiajunhahah/RealityBadge.git"
+    },
+    "defaultWorkflow": {
+      "name": "Main Workflow",
+      "branch": "main",
+      "actions": ["build", "test", "analyze", "archive", "distribute"]
+    }
+  }
+}
