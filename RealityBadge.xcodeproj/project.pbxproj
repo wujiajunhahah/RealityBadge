@@ -23,6 +23,7 @@
 		CB3D50BB2E6D6A7600E6AD97 /* LiquidGlassEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B42E6D6A7600E6AD97 /* LiquidGlassEffect.swift */; };
 		CB3D50BC2E6D6A7600E6AD97 /* QuantumCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B62E6D6A7600E6AD98 /* QuantumCaptureView.swift */; };
 		CB3D50BD2E6D6A7600E6AD97 /* QuantumBadge3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50B72E6D6A7600E6AD98 /* QuantumBadge3DView.swift */; };
+		CB3D50BE2E6D6A7600E6AD97 /* SimpleCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D50BE2E6D6A7600E6AD99 /* SimpleCaptureView.swift */; };
 		RB0000010000000000000001 /* BackendServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000002 /* BackendServices.swift */; };
 		RB0000010000000000000003 /* DocumentImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000004 /* DocumentImport.swift */; };
 		RB0000010000000000000005 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = RB0000010000000000000006 /* AppDelegate.swift */; };
@@ -58,6 +59,7 @@
 		CB3D50B52E6D6A7600E6AD97 /* SemanticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemanticEngine.swift; sourceTree = "<group>"; };
 		CB3D50B62E6D6A7600E6AD98 /* QuantumCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumCaptureView.swift; sourceTree = "<group>"; };
 		CB3D50B72E6D6A7600E6AD98 /* QuantumBadge3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumBadge3DView.swift; sourceTree = "<group>"; };
+		CB3D50BE2E6D6A7600E6AD99 /* SimpleCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleCaptureView.swift; sourceTree = "<group>"; };
 		RB0000010000000000000002 /* BackendServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendServices.swift; sourceTree = "<group>"; };
 		RB0000010000000000000004 /* DocumentImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentImport.swift; sourceTree = "<group>"; };
 		RB0000010000000000000006 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 				CB3D50B52E6D6A7600E6AD97 /* SemanticEngine.swift */,
 				CB3D50B62E6D6A7600E6AD98 /* QuantumCaptureView.swift */,
 				CB3D50B72E6D6A7600E6AD98 /* QuantumBadge3DView.swift */,
+				CB3D50BE2E6D6A7600E6AD99 /* SimpleCaptureView.swift */,
 				1AAPPF000000000100000001 /* RealityBadgeApp.swift */,
 				1AAPPF000000000100000002 /* Models.swift */,
 				1AAPPF000000000100000003 /* HomeView.swift */,
@@ -220,6 +223,7 @@
 				CB3D50BB2E6D6A7600E6AD97 /* LiquidGlassEffect.swift in Sources */,
 				CB3D50BC2E6D6A7600E6AD97 /* QuantumCaptureView.swift in Sources */,
 				CB3D50BD2E6D6A7600E6AD97 /* QuantumBadge3DView.swift in Sources */,
+				CB3D50BE2E6D6A7600E6AD97 /* SimpleCaptureView.swift in Sources */,
 				RB0000010000000000000007 /* ImageUtils.swift in Sources */,
 				RB0000010000000000000005 /* AppDelegate.swift in Sources */,
 				RB0000010000000000000003 /* DocumentImport.swift in Sources */,
