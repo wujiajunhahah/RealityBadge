@@ -61,6 +61,7 @@
 		CB3D50B72E6D6A7600E6AD98 /* QuantumBadge3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumBadge3DView.swift; sourceTree = "<group>"; };
 		CB3D50BE2E6D6A7600E6AD99 /* SimpleCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleCaptureView.swift; sourceTree = "<group>"; };
 		CB3D50BF2E6D6A7600E6AD9A /* HomeViewNative.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewNative.swift; sourceTree = "<group>"; };
+		CB3D50C02E6D6A7600E6AD9A /* CaptureViewNative.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureViewNative.swift; sourceTree = "<group>"; };
 		RB0000010000000000000002 /* BackendServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendServices.swift; sourceTree = "<group>"; };
 		RB0000010000000000000004 /* DocumentImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentImport.swift; sourceTree = "<group>"; };
 		RB0000010000000000000006 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -132,6 +133,7 @@
 				1AAPPF000000000100000003 /* HomeView.swift */,
 				CB3D50BF2E6D6A7600E6AD9A /* HomeViewNative.swift */,
 				1AAPPF000000000100000004 /* CaptureView.swift */,
+				CB3D50C02E6D6A7600E6AD9A /* CaptureViewNative.swift */,
 				1AAPPF000000000100000005 /* Sheets.swift */,
 				1AAPPF000000000100000006 /* BadgeWallView.swift */,
 				1AAPPF000000000100000007 /* SettingsView.swift */,
@@ -227,6 +229,7 @@
 				CB3D50BD2E6D6A7600E6AD97 /* QuantumBadge3DView.swift in Sources */,
 				CB3D50BE2E6D6A7600E6AD97 /* SimpleCaptureView.swift in Sources */,
 				CB3D50BF2E6D6A7600E6AD99 /* HomeViewNative.swift in Sources */,
+				CB3D50C02E6D6A7600E6AD99 /* CaptureViewNative.swift in Sources */,
 				RB0000010000000000000007 /* ImageUtils.swift in Sources */,
 				RB0000010000000000000005 /* AppDelegate.swift in Sources */,
 				RB0000010000000000000003 /* DocumentImport.swift in Sources */,
