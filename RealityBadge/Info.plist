@@ -15,11 +15,11 @@
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleDisplayName</key>
-  <string>231</string>
+  <string>灵感徽章</string>
   <key>CFBundleShortVersionString</key>
-  <string>1.0</string>
+  <string>1.1</string>
   <key>CFBundleVersion</key>
-  <string>1</string>
+  <string>15</string>
   <key>UILaunchScreen</key>
   <dict/>
   <key>UIApplicationSceneManifest</key>
